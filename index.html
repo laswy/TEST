@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>QUẢN LÝ CÔNG VIỆC & GHI CHÚ PWA</title>
+  <title>QUẢN LÝ CÔNG VIỆC & GHI CHÚ </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="/manifest.json">
   <style>
@@ -598,10 +598,8 @@
     .text-sm {
       font-size: 14px;
     }
-
   </style>
 </head>
-<script src="script.js"></script>
 <body>
   <div class="header">
     <h1 class="title">📋 QUẢN LÝ CÔNG VIỆC & GHI CHÚ</h1>
@@ -613,7 +611,6 @@
     <button class="nav-tab" onclick="switchTab('notes')">📝 Ghi chú</button>
   </div>
   
-  <!-- Tasks Tab -->
   <div id="tasksTab" class="tab-content active">
     <div class="form-container">
       <div class="input-group">
@@ -674,7 +671,6 @@
     </div>
   </div>
   
-  <!-- Notes Tab -->
   <div id="notesTab" class="tab-content">
     <div class="form-container">
       <div class="input-group">
@@ -732,185 +728,6 @@
     </div>
   </div>
 
-  <script>
-    // Global variables
-    let tasks = [];
-    let notes = [];
-    let currentTaskFilter = 'all';
-    let currentNoteFilter = 'all';
-    let currentTab = 'tasks';
-    
-    // Tab switching
-    function switchTab(tab) {
-      currentTab = tab;
-      
-      // Hide all tabs
-      document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
-      
-      // Show selected tab
-      document.getElementById(tab + 'Tab').classList.add('active');
-      
-      // Update nav buttons
-      document.querySelectorAll('.nav-tab').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-    }
-    
-    // Data storage functions
-    
-function saveData() {
-  try {
-    const data = {
-      tasks: tasks,
-      notes: notes,
-      lastSaved: new Date().toISOString()
-    };
-    localStorage.setItem("taskNotesData", JSON.stringify(data));
-    showToast('Đã lưu thành công!', 'success');
-
-      } catch (error) {
-        showToast('Lỗi khi lưu dữ liệu!', 'error');
-        console.error('Save error:', error);
-      }
-    }
-    
-    
-function loadData() {
-  try {
-    const dataStr = localStorage.getItem("taskNotesData");
-    if (dataStr) {
-      const data = JSON.parse(dataStr);
-      tasks = data.tasks || [];
-      notes = data.notes || [];
-    }
-
-    renderTasks();
-    renderNotes();
-    updateTaskStats();
-    updateNoteStats();
-
-    if (localStorage.getItem("darkMode") === "true") {
-      document.body.classList.add('dark-mode');
-    }
-  } catch (error) {
-    showToast('Lỗi khi tải dữ liệu!', 'error');
-    console.error('Load error:', error);
-    tasks = [];
-    notes = [];
-
-      }
-    }
-    
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      
-      setTimeout(() => toast.classList.add('show'), 100);
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => document.body.removeChild(toast), 300);
-      }, 3000);
-    }
-    
-    // Task management functions
-    function addTask() {
-      const text = document.getElementById('taskInput').value.trim();
-      const startInput = document.getElementById('startTime').value;
-      const endInput = document.getElementById('endTime').value;
-      const priority = document.getElementById('prioritySelect').value;
-      const tagsInput = document.getElementById('taskTags').value.trim();
-      
-      if (!text || !startInput) {
-        showToast("Vui lòng nhập đầy đủ nội dung và ngày bắt đầu.", 'error');
-        return;
-      }
-      
-      const start = new Date(startInput);
-      let end = endInput ? new Date(endInput) : new Date(startInput);
-      
-      // Process tags
-      const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-      
-      tasks.push({
-        id: Date.now(),
-        text,
-        start: start.toISOString(),
-        end: end.toISOString(),
-        priority,
-        tags,
-        completed: false,
-        pinned: false,
-        createdAt: new Date().toISOString()
-      });
-      
-      saveData();
-      renderTasks();
-      updateTaskStats();
-      
-      // Clear form
-      document.getElementById('taskInput').value = '';
-      document.getElementById('startTime').value = '';
-      document.getElementById('endTime').value = '';
-      document.getElementById('prioritySelect').value = 'medium';
-      document.getElementById('taskTags').value = '';
-      
-      showToast('Đã thêm công việc mới!', 'success');
-    }
-    
-    function calculateProgress(task) {
-      if (task.completed) return 100;
-      const now = new Date();
-      const start = new Date(task.start);
-      const end = new Date(task.end);
-      if (now < start) return 0;
-      if (now >= end) return 100;
-      const total = end - start;
-      const passed = now - start;
-      return Math.floor((passed / total) * 100);
-    }
-    
-    function getPriorityText(priority) {
-      switch(priority) {
-        case 'low': return 'Thấp';
-        case 'medium': return 'Trung bình';
-        case 'high': return 'Cao';
-        default: return priority;
-      }
-    }
-    
-    function renderTasks() {
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      
-      let filteredTasks = tasks.filter(task => {
-        if (currentTaskFilter === 'active') return !task.completed;
-        if (currentTaskFilter === 'completed') return task.completed;
-        if (currentTaskFilter === 'pinned') return task.pinned;
-        return true;
-      });
-      
-      // Apply search filter
-      const searchTerm = document.getElementById('taskSearch')?.value?.toLowerCase() || '';
-      if (searchTerm) {
-        filteredTasks = filteredTasks.filter(task => 
-          task.text.toLowerCase().includes(searchTerm) ||
-          task.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-        );
-      }
-      
-      // Sort tasks
-      filteredTasks.sort((a, b) => {
-        if (a.pinned !== b.pinned) return b.pinned - a.pinned;
-        if (a.completed !== b.completed) return a.completed - b.completed;
-        const progressA = calculateProgress(a);
-        const progressB = calculateProgress(b);
-        return progressB - progressA;
-      });
-      
-      if (filteredTasks.length === 0) {
-        list.innerHTML =
+  <script src="script.js"></script>
+</body>
+</html>
