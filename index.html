@@ -598,6 +598,7 @@
     .text-sm {
       font-size: 14px;
     }
+
   </style>
 </head>
 <script src="script.js"></script>
@@ -759,49 +760,47 @@
     }
     
     // Data storage functions
-    function saveData() {
-      try {
-        const data = {
-          tasks: tasks,
-          notes: notes,
-          lastSaved: new Date().toISOString()
-        };
-        const dataStr = JSON.stringify(data);
-        
-        // Store in memory (since localStorage is not supported)
-        window.appData = data;
-        
-        showToast('Đã lưu thành công!', 'success');
+    
+function saveData() {
+  try {
+    const data = {
+      tasks: tasks,
+      notes: notes,
+      lastSaved: new Date().toISOString()
+    };
+    localStorage.setItem("taskNotesData", JSON.stringify(data));
+    showToast('Đã lưu thành công!', 'success');
+
       } catch (error) {
         showToast('Lỗi khi lưu dữ liệu!', 'error');
         console.error('Save error:', error);
       }
     }
     
-    function loadData() {
-      try {
-        // Load from memory (since localStorage is not supported)
-        if (window.appData) {
-          const data = window.appData;
-          tasks = data.tasks || [];
-          notes = data.notes || [];
-        }
-        
-        // Render data
-        renderTasks();
-        renderNotes();
-        updateTaskStats();
-        updateNoteStats();
-        
-        // Load dark mode preference from memory
-        if (window.darkModeEnabled) {
-          document.body.classList.add('dark-mode');
-        }
-      } catch (error) {
-        showToast('Lỗi khi tải dữ liệu!', 'error');
-        console.error('Load error:', error);
-        tasks = [];
-        notes = [];
+    
+function loadData() {
+  try {
+    const dataStr = localStorage.getItem("taskNotesData");
+    if (dataStr) {
+      const data = JSON.parse(dataStr);
+      tasks = data.tasks || [];
+      notes = data.notes || [];
+    }
+
+    renderTasks();
+    renderNotes();
+    updateTaskStats();
+    updateNoteStats();
+
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add('dark-mode');
+    }
+  } catch (error) {
+    showToast('Lỗi khi tải dữ liệu!', 'error');
+    console.error('Load error:', error);
+    tasks = [];
+    notes = [];
+
       }
     }
     
