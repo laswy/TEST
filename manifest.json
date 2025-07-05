@@ -1,21 +1,21 @@
 {
-  "name": "Quản lý Công việc PWA",
-  "short_name": "ToDo PWA",
-  "description": "Ứng dụng quản lý công việc tiến bộ.",
+  "name": "QUẢN LÝ CÔNG VIỆC VÀ GHI CHÚ",
+  "short_name": "Công Việc & Ghi Chú",
+  "description": "Ứng dụng quản lý công việc và ghi chú tiến bộ.",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#009688",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/icons/icon-192x192.ico",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/x-icon"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/icon-512x512.ico",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/x-icon"
     }
   ]
 }
