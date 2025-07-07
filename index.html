@@ -167,6 +167,35 @@
       box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
     }
     
+    /* File input styling */
+    .file-input-container {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .file-input {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+    }
+    
+    .file-input-label {
+      display: block;
+      padding: 10px 15px;
+      background: #6c757d;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    
+    .file-input-label:hover {
+      background: #5a6268;
+    }
+    
     /* Notes specific styles */
     .notes-toolbar {
       display: flex;
@@ -223,6 +252,13 @@
     
     body.dark-mode .rich-editor:focus {
       border-color: #ffc107;
+    }
+    
+    .rich-editor img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 10px 0;
     }
     
     /* Filter buttons */
@@ -423,6 +459,15 @@
       background: #c82333;
     }
     
+    .btn-info {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    .btn-info:hover {
+      background: #138496;
+    }
+    
     /* Progress bar for tasks */
     .progress-container { 
       margin: 10px 0; 
@@ -458,6 +503,55 @@
     body.dark-mode .task-item.completed-green { background-color: #1f4d1f; }
     
     .task-item.completed { opacity: 0.6; text-decoration: line-through; }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+    
+    body.dark-mode .modal-content {
+      background-color: #2d2d2d;
+      color: #f4f4f4;
+    }
+    
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .close:hover {
+      color: #000;
+    }
+    
+    body.dark-mode .close {
+      color: #ccc;
+    }
+    
+    body.dark-mode .close:hover {
+      color: #fff;
+    }
     
     /* Stats */
     .stats-container { 
@@ -572,6 +666,11 @@
       .stats-grid {
         grid-template-columns: 1fr;
       }
+      
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+      }
     }
     
     /* Utility classes */
@@ -600,6 +699,7 @@
     }
   </style>
 </head>
+  <script src="script.js"></script>
 <body>
   <div class="header">
     <h1 class="title">📋 QUẢN LÝ CÔNG VIỆC & GHI CHÚ</h1>
@@ -687,6 +787,14 @@
         <button class="toolbar-btn" onclick="formatText('underline')"><u>U</u></button>
         <button class="toolbar-btn" onclick="formatText('insertUnorderedList')">• List</button>
         <button class="toolbar-btn" onclick="insertLink()">🔗 Link</button>
+        <button class="toolbar-btn" onclick="insertImage()">📷 Ảnh</button>
+      </div>
+      
+      <div class="input-group">
+        <div class="file-input-container">
+          <input type="file" id="imageInput" class="file-input" accept="image/*" onchange="handleImageUpload(event)">
+          <label for="imageInput" class="file-input-label">📁 Chọn ảnh từ máy tính</label>
+        </div>
       </div>
       
       <div class="input-group">
@@ -728,6 +836,76 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+  <!-- Modal sửa công việc -->
+  <div id="editTaskModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditTaskModal()">&times;</span>
+      <h2>✏️ Sửa công việc</h2>
+      <div class="input-group">
+        <input type="text" id="editTaskInput" placeholder="Nội dung công việc">
+      </div>
+      <div class="input-row">
+        <input type="date" id="editStartTime">
+        <input type="date" id="editEndTime">
+        <select id="editPrioritySelect">
+          <option value="low">Thấp</option>
+          <option value="medium">Trung bình</option>
+          <option value="high">Cao</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <input type="text" id="editTaskTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
+      </div>
+      <button class="add-btn" onclick="saveEditTask()">💾 LƯU THAY ĐỔI</button>
+    </div>
+  </div>
+
+  <!-- Modal sửa ghi chú -->
+  <div id="editNoteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditNoteModal()">&times;</span>
+      <h2>✏️ Sửa ghi chú</h2>
+      <div class="input-group">
+        <input type="text" id="editNoteTitle" placeholder="Tiêu đề ghi chú">
+      </div>
+      <div class="input-row">
+        <input type="text" id="editNoteTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
+      </div>
+      <div class="input-group">
+        <div class="rich-editor" id="editNoteEditor" contenteditable="true" placeholder="Nhập nội dung ghi chú..."></div>
+      </div>
+      <button class="add-btn" onclick="saveEditNote()">💾 LƯU THAY ĐỔI</button>
+    </div>
+  </div>
+
+  <script>
+    // Biến toàn cục
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let notes = JSON.parse(localStorage.getItem('notes')) || [];
+    let taskFilter = 'all';
+    let noteFilter = 'all';
+    let editingTaskId = null;
+    let editingNoteId = null;
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    // Khởi tạo app
+    document.addEventListener('DOMContentLoaded', function() {
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+      }
+      renderTasks();
+      renderNotes();
+      updateTaskStats();
+      updateNoteStats();
+    });
+
+    // Chuyển đổi dark mode
+    function toggleDarkMode() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDarkMode);
+    }
+
+    // Chuyển đổi tab
+    function switchTab(tabName) {
+      document.querySelectorAll('.nav-tab
