@@ -179,21 +179,25 @@
       position: absolute;
       left: -9999px;
       opacity: 0;
+      width: 1px;
+      height: 1px;
     }
     
     .file-input-label {
       display: block;
-      padding: 10px 15px;
+      padding: 12px 15px;
       background: #6c757d;
       color: white;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       text-align: center;
-      transition: background-color 0.3s;
+      transition: all 0.3s;
+      font-weight: 500;
     }
     
     .file-input-label:hover {
       background: #5a6268;
+      transform: translateY(-1px);
     }
     
     /* Notes specific styles */
@@ -212,10 +216,12 @@
       cursor: pointer;
       transition: all 0.3s;
       color: inherit;
+      font-size: 14px;
     }
     
     .toolbar-btn:hover {
       background: #f8f9fa;
+      transform: translateY(-1px);
     }
     
     body.dark-mode .toolbar-btn {
@@ -238,6 +244,8 @@
       font-family: inherit;
       font-size: 16px;
       line-height: 1.5;
+      overflow-y: auto;
+      max-height: 400px;
     }
     
     .rich-editor:focus {
@@ -258,6 +266,16 @@
       max-width: 100%;
       height: auto;
       border-radius: 8px;
+      margin: 10px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .rich-editor p {
+      margin: 10px 0;
+    }
+    
+    .rich-editor ul, .rich-editor ol {
+      padding-left: 20px;
       margin: 10px 0;
     }
     
@@ -376,6 +394,13 @@
       line-height: 1.6;
     }
     
+    .item-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 8px 0;
+    }
+    
     .item-tags {
       display: flex;
       gap: 8px;
@@ -394,518 +419,4 @@
     
     body.dark-mode .tag {
       background: #ffc107;
-      color: #000;
-    }
-    
-    .item-meta {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 10px;
-    }
-    
-    body.dark-mode .item-meta {
-      color: #ccc;
-    }
-    
-    .item-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    
-    .item-actions button {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s;
-    }
-    
-    .btn-primary {
-      background: #007bff;
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background: #0056b3;
-    }
-    
-    .btn-success {
-      background: #28a745;
-      color: white;
-    }
-    
-    .btn-success:hover {
-      background: #218838;
-    }
-    
-    .btn-warning {
-      background: #ffc107;
-      color: #000;
-    }
-    
-    .btn-warning:hover {
-      background: #e0a800;
-    }
-    
-    .btn-danger {
-      background: #dc3545;
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background: #c82333;
-    }
-    
-    .btn-info {
-      background: #17a2b8;
-      color: white;
-    }
-    
-    .btn-info:hover {
-      background: #138496;
-    }
-    
-    /* Progress bar for tasks */
-    .progress-container { 
-      margin: 10px 0; 
-      height: 8px; 
-      background: #e9ecef; 
-      border-radius: 4px; 
-      overflow: hidden;
-    }
-    
-    body.dark-mode .progress-container { 
-      background: #444; 
-    }
-    
-    .progress-bar { 
-      height: 100%; 
-      background: linear-gradient(90deg, #28a745, #20c997);
-      border-radius: 4px; 
-      width: 0%; 
-      transition: width 0.5s ease;
-    }
-    
-    /* Task specific styles */
-    .task-item.progress-white { background-color: #fff; }
-    .task-item.progress-pink { background-color: #ffe0e0; }
-    .task-item.progress-orange { background-color: #ffe5cc; }
-    .task-item.progress-red { background-color: #ffcccc; }
-    .task-item.completed-green { background-color: #e0ffe0; }
-    
-    body.dark-mode .task-item.progress-white { background-color: #2d2d2d; }
-    body.dark-mode .task-item.progress-pink { background-color: #4d1f1f; }
-    body.dark-mode .task-item.progress-orange { background-color: #4d3319; }
-    body.dark-mode .task-item.progress-red { background-color: #4d1f1f; }
-    body.dark-mode .task-item.completed-green { background-color: #1f4d1f; }
-    
-    .task-item.completed { opacity: 0.6; text-decoration: line-through; }
-    
-    /* Modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-    }
-    
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      position: relative;
-    }
-    
-    body.dark-mode .modal-content {
-      background-color: #2d2d2d;
-      color: #f4f4f4;
-    }
-    
-    .close {
-      position: absolute;
-      right: 15px;
-      top: 10px;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #666;
-    }
-    
-    .close:hover {
-      color: #000;
-    }
-    
-    body.dark-mode .close {
-      color: #ccc;
-    }
-    
-    body.dark-mode .close:hover {
-      color: #fff;
-    }
-    
-    /* Stats */
-    .stats-container { 
-      margin-top: 20px; 
-      padding: 15px; 
-      background: white;
-      border: 2px solid #e9ecef; 
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    body.dark-mode .stats-container { 
-      background: #2d2d2d;
-      border-color: #444;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 15px;
-      margin-top: 10px;
-    }
-    
-    .stat-item {
-      text-align: center;
-      padding: 10px;
-      background: #f8f9fa;
-      border-radius: 8px;
-    }
-    
-    body.dark-mode .stat-item {
-      background: #1a1a1a;
-    }
-    
-    .stat-number {
-      font-size: 24px;
-      font-weight: bold;
-      color: #007bff;
-    }
-    
-    body.dark-mode .stat-number {
-      color: #ffc107;
-    }
-    
-    .stat-label {
-      font-size: 12px;
-      color: #666;
-      margin-top: 4px;
-    }
-    
-    body.dark-mode .stat-label {
-      color: #ccc;
-    }
-    
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #28a745;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 1000;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-    }
-    
-    .toast.show {
-      transform: translateX(0);
-    }
-    
-    .toast.error {
-      background: #dc3545;
-    }
-    
-    .toast.warning {
-      background: #ffc107;
-      color: #000;
-    }
-    
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-      .input-row {
-        flex-direction: column;
-        gap: 10px;
-      }
-      
-      .notes-toolbar {
-        flex-direction: column;
-      }
-      
-      .toolbar-btn {
-        width: 100%;
-      }
-      
-      .filter-buttons {
-        flex-direction: column;
-      }
-      
-      .filter-buttons button {
-        width: 100%;
-        margin-bottom: 8px;
-      }
-      
-      .item-actions {
-        flex-direction: column;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .modal-content {
-        width: 95%;
-        margin: 10% auto;
-      }
-    }
-    
-    /* Utility classes */
-    .hidden {
-      display: none !important;
-    }
-    
-    .mt-10 {
-      margin-top: 10px;
-    }
-    
-    .mb-10 {
-      margin-bottom: 10px;
-    }
-    
-    .text-center {
-      text-align: center;
-    }
-    
-    .font-bold {
-      font-weight: bold;
-    }
-    
-    .text-sm {
-      font-size: 14px;
-    }
-  </style>
-</head>
-  <script src="script.js"></script>
-<body>
-  <div class="header">
-    <h1 class="title">📋 QUẢN LÝ CÔNG VIỆC & GHI CHÚ</h1>
-    <button class="dark-mode-toggle" onclick="toggleDarkMode()">☀️/🌙</button>
-  </div>
-  
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('tasks')">📋 Công việc</button>
-    <button class="nav-tab" onclick="switchTab('notes')">📝 Ghi chú</button>
-  </div>
-  
-  <div id="tasksTab" class="tab-content active">
-    <div class="form-container">
-      <div class="input-group">
-        <input type="text" id="taskInput" placeholder="Nội dung công việc">
-      </div>
-      
-      <div class="input-row">
-        <input type="date" id="startTime" placeholder="Thời gian bắt đầu">
-        <input type="date" id="endTime" placeholder="Thời gian kết thúc">
-        <select id="prioritySelect">
-          <option value="low">Thấp</option>
-          <option value="medium" selected>Trung bình</option>
-          <option value="high">Cao</option>
-        </select>
-      </div>
-      
-      <div class="input-row">
-        <input type="text" id="taskTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
-      </div>
-      
-      <button class="add-btn" onclick="addTask()">➕ THÊM CÔNG VIỆC</button>
-    </div>
-    
-    <div class="search-container">
-      <input type="text" class="search-input" id="taskSearch" placeholder="Tìm kiếm công việc..." onkeyup="searchTasks()">
-      <span class="search-icon">🔍</span>
-    </div>
-    
-    <div class="filter-buttons">
-      <button class="active" onclick="setTaskFilter('all')">Tất cả</button>
-      <button onclick="setTaskFilter('active')">Chưa hoàn thành</button>
-      <button onclick="setTaskFilter('completed')">Đã hoàn thành</button>
-      <button onclick="setTaskFilter('pinned')">Đã ghim</button>
-    </div>
-    
-    <ul id="taskList" class="item-list"></ul>
-    
-    <div class="stats-container">
-      <h3>📊 THỐNG KÊ CÔNG VIỆC</h3>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number" id="totalTasks">0</div>
-          <div class="stat-label">Tổng số</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="completedTasks">0</div>
-          <div class="stat-label">Hoàn thành</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="activeTasks">0</div>
-          <div class="stat-label">Chưa hoàn thành</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="pinnedTasks">0</div>
-          <div class="stat-label">Đã ghim</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div id="notesTab" class="tab-content">
-    <div class="form-container">
-      <div class="input-group">
-        <input type="text" id="noteTitle" placeholder="Tiêu đề ghi chú">
-      </div>
-      
-      <div class="input-row">
-        <input type="text" id="noteTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
-      </div>
-      
-      <div class="notes-toolbar">
-        <button class="toolbar-btn" onclick="formatText('bold')"><b>B</b></button>
-        <button class="toolbar-btn" onclick="formatText('italic')"><i>I</i></button>
-        <button class="toolbar-btn" onclick="formatText('underline')"><u>U</u></button>
-        <button class="toolbar-btn" onclick="formatText('insertUnorderedList')">• List</button>
-        <button class="toolbar-btn" onclick="insertLink()">🔗 Link</button>
-        <button class="toolbar-btn" onclick="insertImage()">📷 Ảnh</button>
-      </div>
-      
-      <div class="input-group">
-        <div class="file-input-container">
-          <input type="file" id="imageInput" class="file-input" accept="image/*" onchange="handleImageUpload(event)">
-          <label for="imageInput" class="file-input-label">📁 Chọn ảnh từ máy tính</label>
-        </div>
-      </div>
-      
-      <div class="input-group">
-        <div class="rich-editor" id="noteEditor" contenteditable="true" placeholder="Nhập nội dung ghi chú..."></div>
-      </div>
-      
-      <button class="add-btn" onclick="addNote()">➕ THÊM GHI CHÚ</button>
-    </div>
-    
-    <div class="search-container">
-      <input type="text" class="search-input" id="noteSearch" placeholder="Tìm kiếm ghi chú..." onkeyup="searchNotes()">
-      <span class="search-icon">🔍</span>
-    </div>
-    
-    <div class="filter-buttons">
-      <button class="active" onclick="setNoteFilter('all')">Tất cả</button>
-      <button onclick="setNoteFilter('pinned')">Đã ghim</button>
-      <button onclick="setNoteFilter('recent')">Gần đây</button>
-    </div>
-    
-    <ul id="noteList" class="item-list"></ul>
-    
-    <div class="stats-container">
-      <h3>📊 THỐNG KÊ GHI CHÚ</h3>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number" id="totalNotes">0</div>
-          <div class="stat-label">Tổng số</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="pinnedNotes">0</div>
-          <div class="stat-label">Đã ghim</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="recentNotes">0</div>
-          <div class="stat-label">Gần đây</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal sửa công việc -->
-  <div id="editTaskModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeEditTaskModal()">&times;</span>
-      <h2>✏️ Sửa công việc</h2>
-      <div class="input-group">
-        <input type="text" id="editTaskInput" placeholder="Nội dung công việc">
-      </div>
-      <div class="input-row">
-        <input type="date" id="editStartTime">
-        <input type="date" id="editEndTime">
-        <select id="editPrioritySelect">
-          <option value="low">Thấp</option>
-          <option value="medium">Trung bình</option>
-          <option value="high">Cao</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <input type="text" id="editTaskTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
-      </div>
-      <button class="add-btn" onclick="saveEditTask()">💾 LƯU THAY ĐỔI</button>
-    </div>
-  </div>
-
-  <!-- Modal sửa ghi chú -->
-  <div id="editNoteModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeEditNoteModal()">&times;</span>
-      <h2>✏️ Sửa ghi chú</h2>
-      <div class="input-group">
-        <input type="text" id="editNoteTitle" placeholder="Tiêu đề ghi chú">
-      </div>
-      <div class="input-row">
-        <input type="text" id="editNoteTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
-      </div>
-      <div class="input-group">
-        <div class="rich-editor" id="editNoteEditor" contenteditable="true" placeholder="Nhập nội dung ghi chú..."></div>
-      </div>
-      <button class="add-btn" onclick="saveEditNote()">💾 LƯU THAY ĐỔI</button>
-    </div>
-  </div>
-
-  <script>
-    // Biến toàn cục
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    let notes = JSON.parse(localStorage.getItem('notes')) || [];
-    let taskFilter = 'all';
-    let noteFilter = 'all';
-    let editingTaskId = null;
-    let editingNoteId = null;
-    let isDarkMode = localStorage.getItem('darkMode') === 'true';
-
-    // Khởi tạo app
-    document.addEventListener('DOMContentLoaded', function() {
-      if (isDarkMode) {
-        document.body.classList.add('dark-mode');
-      }
-      renderTasks();
-      renderNotes();
-      updateTaskStats();
-      updateNoteStats();
-    });
-
-    // Chuyển đổi dark mode
-    function toggleDarkMode() {
-      isDarkMode = !isDarkMode;
-      document.body.classList.toggle('dark-mode');
-      localStorage.setItem('darkMode', isDarkMode);
-    }
-
-    // Chuyển đổi tab
-    function switchTab(tabName) {
-      document.querySelectorAll('.nav-tab
+      color:
