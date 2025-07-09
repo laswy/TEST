@@ -178,7 +178,26 @@ function editTask(id) {
   document.getElementById('endTime').value = task.end;
   document.getElementById('prioritySelect').value = task.priority;
   document.getElementById('taskTags').value = task.tags.join(', ');
-  deleteTask(id);
+  document.getElementById('addTaskBtn').textContent = '💾 CẬP NHẬT';
+  document.getElementById('addTaskBtn').onclick = function () {
+    task.text = document.getElementById('taskInput').value.trim();
+    task.start = document.getElementById('startTime').value;
+    task.end = document.getElementById('endTime').value;
+    task.priority = document.getElementById('prioritySelect').value;
+    task.tags = document.getElementById('taskTags').value.trim().split(',').map(t => t.trim());
+    saveData();
+    renderTasks();
+    updateTaskStats();
+    showToast('Đã cập nhật công việc!');
+    document.getElementById('taskInput').value = '';
+    document.getElementById('startTime').value = '';
+    document.getElementById('endTime').value = '';
+    document.getElementById('prioritySelect').value = 'medium';
+    document.getElementById('taskTags').value = '';
+    document.getElementById('addTaskBtn').textContent = '➕ Thêm';
+    document.getElementById('addTaskBtn').onclick = addTask;
+  };
+  showToast('Đang chỉnh sửa công việc...', 'info');
   showToast('Bạn có thể chỉnh sửa công việc và nhấn thêm lại.', 'info');
 }
 
@@ -228,6 +247,22 @@ function editNote(id) {
   document.getElementById('noteTitle').value = note.title;
   document.getElementById('noteTags').value = note.tags.join(', ');
   document.getElementById('noteEditor').innerHTML = note.content;
-  deleteNote(id);
+  document.getElementById('addNoteBtn').textContent = '💾 CẬP NHẬT';
+  document.getElementById('addNoteBtn').onclick = function () {
+    note.title = document.getElementById('noteTitle').value.trim();
+    note.tags = document.getElementById('noteTags').value.trim().split(',').map(t => t.trim());
+    note.content = document.getElementById('noteEditor').innerHTML.trim();
+    note.lastModified = new Date().toISOString();
+    saveData();
+    renderNotes();
+    updateNoteStats();
+    showToast('Đã cập nhật ghi chú!');
+    document.getElementById('noteTitle').value = '';
+    document.getElementById('noteTags').value = '';
+    document.getElementById('noteEditor').innerHTML = '';
+    document.getElementById('addNoteBtn').textContent = '➕ Thêm';
+    document.getElementById('addNoteBtn').onclick = addNote;
+  };
+  showToast('Đang chỉnh sửa ghi chú...', 'info');
   showToast('Bạn có thể chỉnh sửa ghi chú và nhấn thêm lại.', 'info');
 }
