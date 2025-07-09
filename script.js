@@ -4,6 +4,8 @@ let notes = [];
 let currentTaskFilter = 'all';
 let currentNoteFilter = 'all';
 let currentTab = 'tasks';
+let editingTaskId = null; // Biến để lưu ID của công việc đang chỉnh sửa
+let editingNoteId = null; // Biến để lưu ID của ghi chú đang chỉnh sửa
 
 // === Chuyển tab ===
 function switchTab(tab) {
@@ -97,6 +99,7 @@ function addTask() {
   renderTasks();
   updateTaskStats();
 
+  // Clear form fields
   document.getElementById('taskInput').value = '';
   document.getElementById('startTime').value = '';
   document.getElementById('endTime').value = '';
@@ -148,7 +151,7 @@ function renderTasks() {
       </div>
       ${completedTimeHtml}
       <div class="item-actions">
-        <button class="btn-info" onclick="editTask(${task.id})">✏️ Sửa</button>
+        <button class="btn-info" onclick="openEditTaskModal(${task.id})">✏️ Sửa</button>
         <button class="btn-success" onclick="toggleTaskComplete(${task.id})">${task.completed ? '↩️ Hoàn tác' : '✅ Hoàn thành'}</button>
         <button class="btn-warning" onclick="toggleTaskPin(${task.id})">${task.pinned ? '📌 Bỏ ghim' : '📌 Ghim'}</button>
         <button class="btn-danger" onclick="deleteTask(${task.id})">🗑️ Xóa</button>
@@ -156,6 +159,19 @@ function renderTasks() {
     `;
     list.appendChild(li);
   }
+}
+
+function setTaskFilter(filter) {
+  currentTaskFilter = filter;
+  document.querySelectorAll('#tasksTab .filter-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`#tasksTab .filter-buttons button[onclick="setTaskFilter('${filter}')"]`).classList.add('active');
+  renderTasks();
+}
+
+function searchTasks() {
+  renderTasks();
 }
 
 function toggleTaskComplete(id) {
@@ -170,38 +186,100 @@ function toggleTaskComplete(id) {
   }
 }
 
-function editTask(id) {
+function deleteTask(id) {
+  if (confirm('Bạn có chắc chắn muốn xóa công việc này không?')) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveData();
+    renderTasks();
+    updateTaskStats();
+    showToast('Đã xóa công việc!');
+  }
+}
+
+function toggleTaskPin(id) {
   const task = tasks.find(t => t.id === id);
-  if (!task) return;
-  document.getElementById('taskInput').value = task.text;
-  document.getElementById('startTime').value = task.start;
-  document.getElementById('endTime').value = task.end;
-  document.getElementById('prioritySelect').value = task.priority;
-  document.getElementById('taskTags').value = task.tags.join(', ');
-  document.getElementById('addTaskBtn').textContent = '💾 CẬP NHẬT';
-  document.getElementById('addTaskBtn').onclick = function () {
-    task.text = document.getElementById('taskInput').value.trim();
-    task.start = document.getElementById('startTime').value;
-    task.end = document.getElementById('endTime').value;
-    task.priority = document.getElementById('prioritySelect').value;
-    task.tags = document.getElementById('taskTags').value.trim().split(',').map(t => t.trim());
+  if (task) {
+    task.pinned = !task.pinned;
+    saveData();
+    renderTasks();
+    updateTaskStats();
+    showToast(task.pinned ? 'Đã ghim công việc!' : 'Đã bỏ ghim công việc!');
+  }
+}
+
+function updateTaskStats() {
+  document.getElementById('totalTasks').textContent = tasks.length;
+  document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length;
+  document.getElementById('activeTasks').textContent = tasks.filter(t => !t.completed).length;
+  document.getElementById('pinnedTasks').textContent = tasks.filter(t => t.pinned).length;
+}
+
+// === Edit Task Modal Functions ===
+function openEditTaskModal(id) {
+  editingTaskId = id;
+  const task = tasks.find(t => t.id === id);
+  if (task) {
+    document.getElementById('editTaskInput').value = task.text;
+    document.getElementById('editStartTime').value = task.start;
+    document.getElementById('editEndTime').value = task.end;
+    document.getElementById('editPrioritySelect').value = task.priority;
+    document.getElementById('editTaskTags').value = task.tags.join(', ');
+    document.getElementById('editTaskModal').style.display = 'block';
+  }
+}
+
+function closeEditTaskModal() {
+  document.getElementById('editTaskModal').style.display = 'none';
+  editingTaskId = null;
+}
+
+function saveEditTask() {
+  const task = tasks.find(t => t.id === editingTaskId);
+  if (task) {
+    task.text = document.getElementById('editTaskInput').value.trim();
+    task.start = document.getElementById('editStartTime').value;
+    task.end = document.getElementById('editEndTime').value;
+    task.priority = document.getElementById('editPrioritySelect').value;
+    task.tags = document.getElementById('editTaskTags').value.trim().split(',').map(t => t.trim());
     saveData();
     renderTasks();
     updateTaskStats();
     showToast('Đã cập nhật công việc!');
-    document.getElementById('taskInput').value = '';
-    document.getElementById('startTime').value = '';
-    document.getElementById('endTime').value = '';
-    document.getElementById('prioritySelect').value = 'medium';
-    document.getElementById('taskTags').value = '';
-    document.getElementById('addTaskBtn').textContent = '➕ Thêm';
-    document.getElementById('addTaskBtn').onclick = addTask;
-  };
-  showToast('Đang chỉnh sửa công việc...', 'info');
-  showToast('Bạn có thể chỉnh sửa công việc và nhấn thêm lại.', 'info');
+    closeEditTaskModal();
+  }
 }
 
 // === Ghi chú ===
+function addNote() {
+  const title = document.getElementById('noteTitle').value.trim();
+  const content = document.getElementById('noteEditor').innerHTML.trim();
+  const tagsStr = document.getElementById('noteTags').value.trim();
+  if (!title) return showToast('Vui lòng nhập tiêu đề ghi chú!', 'error');
+  if (!content) return showToast('Vui lòng nhập nội dung ghi chú!', 'error');
+
+  const note = {
+    id: Date.now(),
+    title,
+    content,
+    tags: tagsStr ? tagsStr.split(',').map(t => t.trim()) : [],
+    pinned: false,
+    createdAt: new Date().toISOString(),
+    lastModified: new Date().toISOString()
+  };
+
+  notes.unshift(note);
+  saveData();
+  renderNotes();
+  updateNoteStats();
+
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('noteEditor').innerHTML = '';
+  document.getElementById('noteTags').value = '';
+  document.getElementById('imagePreview').innerHTML = ''; // Clear image preview
+
+  showToast('Đã thêm ghi chú!');
+}
+
 function renderNotes() {
   const list = document.getElementById('noteList');
   list.innerHTML = '';
@@ -210,10 +288,14 @@ function renderNotes() {
 
   const search = document.getElementById('noteSearch')?.value.toLowerCase();
   if (search) {
-    filtered = filtered.filter(n => n.title.toLowerCase().includes(search) || n.content.toLowerCase().includes(search));
+    filtered = filtered.filter(n => n.title.toLowerCase().includes(search) || n.content.toLowerCase().includes(search) || n.tags.some(tag => tag.toLowerCase().includes(search)));
   }
 
-  filtered.sort((a, b) => b.pinned - a.pinned || new Date(b.createdAt) - new Date(a.createdAt));
+  filtered.sort((a, b) => {
+    if (currentNoteFilter === 'pinned') return b.pinned - a.pinned;
+    if (currentNoteFilter === 'recent') return new Date(b.lastModified) - new Date(a.lastModified);
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
   if (filtered.length === 0) {
     list.innerHTML = '<p class="text-center item-meta">Không có ghi chú nào.</p>';
@@ -230,9 +312,9 @@ function renderNotes() {
       <div class="item-title">${note.title}</div>
       <div class="item-content">${note.content}</div>
       <div class="item-tags">${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
-      <div class="item-meta">Tạo: ${new Date(note.createdAt).toLocaleDateString('vi-VN')}</div>
+      <div class="item-meta">Tạo: ${new Date(note.createdAt).toLocaleDateString('vi-VN')} | Cập nhật: ${new Date(note.lastModified).toLocaleDateString('vi-VN')}</div>
       <div class="item-actions">
-        <button class="btn-info" onclick="editNote(${note.id})">✏️ Sửa</button>
+        <button class="btn-info" onclick="openEditNoteModal(${note.id})">✏️ Sửa</button>
         <button class="btn-warning" onclick="toggleNotePin(${note.id})">${note.pinned ? '📌 Bỏ ghim' : '📌 Ghim'}</button>
         <button class="btn-danger" onclick="deleteNote(${note.id})">🗑️ Xóa</button>
       </div>
@@ -241,28 +323,116 @@ function renderNotes() {
   }
 }
 
-function editNote(id) {
+function setNoteFilter(filter) {
+  currentNoteFilter = filter;
+  document.querySelectorAll('#notesTab .filter-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`#notesTab .filter-buttons button[onclick="setNoteFilter('${filter}')"]`).classList.add('active');
+  renderNotes();
+}
+
+function searchNotes() {
+  renderNotes();
+}
+
+function deleteNote(id) {
+  if (confirm('Bạn có chắc chắn muốn xóa ghi chú này không?')) {
+    notes = notes.filter(n => n.id !== id);
+    saveData();
+    renderNotes();
+    updateNoteStats();
+    showToast('Đã xóa ghi chú!');
+  }
+}
+
+function toggleNotePin(id) {
   const note = notes.find(n => n.id === id);
-  if (!note) return;
-  document.getElementById('noteTitle').value = note.title;
-  document.getElementById('noteTags').value = note.tags.join(', ');
-  document.getElementById('noteEditor').innerHTML = note.content;
-  document.getElementById('addNoteBtn').textContent = '💾 CẬP NHẬT';
-  document.getElementById('addNoteBtn').onclick = function () {
-    note.title = document.getElementById('noteTitle').value.trim();
-    note.tags = document.getElementById('noteTags').value.trim().split(',').map(t => t.trim());
-    note.content = document.getElementById('noteEditor').innerHTML.trim();
+  if (note) {
+    note.pinned = !note.pinned;
+    saveData();
+    renderNotes();
+    updateNoteStats();
+    showToast(note.pinned ? 'Đã ghim ghi chú!' : 'Đã bỏ ghim ghi chú!');
+  }
+}
+
+function updateNoteStats() {
+  document.getElementById('totalNotes').textContent = notes.length;
+  document.getElementById('pinnedNotes').textContent = notes.filter(n => n.pinned).length;
+  // For recent notes, let's define "recent" as created/modified in the last 7 days
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  document.getElementById('recentNotes').textContent = notes.filter(n => new Date(n.lastModified) >= sevenDaysAgo).length;
+}
+
+// === Rich Editor Functions ===
+function formatText(command, value = null) {
+  document.execCommand(command, false, value);
+}
+
+function insertLink() {
+  const url = prompt('Nhập URL:');
+  if (url) {
+    document.execCommand('createLink', false, url);
+  }
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      document.getElementById('noteEditor').appendChild(img);
+      document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" style="max-width: 100px; max-height: 100px;">`;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// === Edit Note Modal Functions ===
+function openEditNoteModal(id) {
+  editingNoteId = id;
+  const note = notes.find(n => n.id === id);
+  if (note) {
+    document.getElementById('editNoteTitle').value = note.title;
+    document.getElementById('editNoteTags').value = note.tags.join(', ');
+    document.getElementById('editNoteEditor').innerHTML = note.content;
+    document.getElementById('editNoteModal').style.display = 'block';
+  }
+}
+
+function closeEditNoteModal() {
+  document.getElementById('editNoteModal').style.display = 'none';
+  editingNoteId = null;
+}
+
+function saveEditNote() {
+  const note = notes.find(n => n.id === editingNoteId);
+  if (note) {
+    note.title = document.getElementById('editNoteTitle').value.trim();
+    note.tags = document.getElementById('editNoteTags').value.trim().split(',').map(t => t.trim());
+    note.content = document.getElementById('editNoteEditor').innerHTML.trim();
     note.lastModified = new Date().toISOString();
     saveData();
     renderNotes();
     updateNoteStats();
     showToast('Đã cập nhật ghi chú!');
-    document.getElementById('noteTitle').value = '';
-    document.getElementById('noteTags').value = '';
-    document.getElementById('noteEditor').innerHTML = '';
-    document.getElementById('addNoteBtn').textContent = '➕ Thêm';
-    document.getElementById('addNoteBtn').onclick = addNote;
-  };
-  showToast('Đang chỉnh sửa ghi chú...', 'info');
-  showToast('Bạn có thể chỉnh sửa ghi chú và nhấn thêm lại.', 'info');
+    closeEditNoteModal();
+  }
+}
+
+// === Initial Load ===
+document.addEventListener('DOMContentLoaded', loadData);
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+  if (event.target == document.getElementById('editTaskModal')) {
+    closeEditTaskModal();
+  }
+  if (event.target == document.getElementById('editNoteModal')) {
+    closeEditNoteModal();
+  }
 }
