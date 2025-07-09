@@ -87,6 +87,7 @@ function addTask() {
     priority,
     tags: tagsStr ? tagsStr.split(',').map(t => t.trim()) : [],
     completed: false,
+    completedTime: null,
     pinned: false,
     createdAt: new Date().toISOString()
   };
@@ -133,6 +134,9 @@ function renderTasks() {
     li.className = 'item task-item';
     if (task.completed) li.classList.add('completed');
     if (task.pinned) li.classList.add('pinned');
+
+    const completedTimeHtml = task.completed && task.completedTime ? `<div class="item-meta" style="color: #28a745; font-weight: bold;">✅ Hoàn thành: ${new Date(task.completedTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})} ${new Date(task.completedTime).toLocaleDateString('vi-VN')}</div>` : '';
+
     li.innerHTML = `
       ${task.pinned ? '<div class="pin-icon">📌</div>' : ''}
       <div class="item-title">${task.text}</div>
@@ -142,6 +146,7 @@ function renderTasks() {
         <strong>Bắt đầu:</strong> ${task.start || 'Chưa đặt'} | 
         <strong>Kết thúc:</strong> ${task.end || 'Chưa đặt'}
       </div>
+      ${completedTimeHtml}
       <div class="item-actions">
         <button class="btn-success" onclick="toggleTaskComplete(${task.id})">${task.completed ? '↩️ Hoàn tác' : '✅ Hoàn thành'}</button>
         <button class="btn-warning" onclick="toggleTaskPin(${task.id})">${task.pinned ? '📌 Bỏ ghim' : '📌 Ghim'}</button>
@@ -156,6 +161,7 @@ function toggleTaskComplete(id) {
   const task = tasks.find(t => t.id === id);
   if (task) {
     task.completed = !task.completed;
+    task.completedTime = task.completed ? new Date().toISOString() : null;
     saveData();
     renderTasks();
     updateTaskStats();
