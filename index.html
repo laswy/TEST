@@ -746,15 +746,22 @@
     <button class="dark-mode-toggle" onclick="toggleDarkMode()">☀️/🌙</button>
   </div>
   
-<div class="header-tools" style="display:flex; gap:8px; align-items:center;">
+<div class="header-tools" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
   <button class="dark-mode-toggle" onclick="exportData()">⬇️ Xuất dữ liệu</button>
   <input id="importMergeInput" type="file" accept="application/json,.json" style="display:none" onchange="handleImportFile(this, 'merge')" />
   <input id="importOverwriteInput" type="file" accept="application/json,.json" style="display:none" onchange="handleImportFile(this, 'overwrite')" />
   <button class="dark-mode-toggle" onclick="document.getElementById('importMergeInput').click()">⬆️ Nhập (gộp)</button>
   <button class="dark-mode-toggle" onclick="document.getElementById('importOverwriteInput').click()">🧹 Nhập (ghi đè)</button>
 </div>
+<div class="header-tools" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+  <button class="dark-mode-toggle" onclick="connectDataFile()">🔗 Kết nối tệp dữ liệu</button>
+  <button class="dark-mode-toggle" onclick="changeDataFile()">📂 Chọn tệp hiện có</button>
+  <button class="dark-mode-toggle" onclick="manualSave()">💾 Lưu ngay</button>
+  <button class="dark-mode-toggle" onclick="reloadFromFile()">↩️ Tải lại từ tệp</button>
+  <span id="dataFileLabel" style="font-size:12px; opacity:0.8;"></span>
+</div>
 
-  
+
   
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchTab('tasks')">📋 Công việc</button>
@@ -1386,10 +1393,10 @@ function exportData() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Đã xuất dữ liệu ra file JSON!');
+    if (typeof showToast === 'function') showToast('Đã xuất dữ liệu ra file JSON!');
   } catch (e) {
     console.error(e);
-    showToast('Xuất dữ liệu thất bại!', 'error');
+    if (typeof showToast === 'function') showToast('Xuất dữ liệu thất bại!', 'error');
   }
 }
 
@@ -1404,7 +1411,7 @@ function handleImportFile(input, mode) {
       importDataText(text, mode);
     } catch (e) {
       console.error(e);
-      showToast('Không thể đọc file!', 'error');
+      if (typeof showToast === 'function') showToast('Không thể đọc file!', 'error');
     } finally {
       input.value = ''; // reset
     }
@@ -1414,7 +1421,6 @@ function handleImportFile(input, mode) {
 
 function normalizeArray(arr, type) {
   if (!Array.isArray(arr)) return [];
-  // Ensure minimal fields exist
   if (type === 'task') {
     return arr.map(t => ({
       id: t.id ?? Date.now() + Math.random(),
@@ -1450,34 +1456,30 @@ function importDataText(text, mode) {
     if (mode === 'overwrite') {
       tasks = incomingTasks;
       notes = incomingNotes;
-      saveData();
-      renderTasks();
-      renderNotes();
-      updateTaskStats();
-      updateNoteStats();
-      showToast('Đã nhập (ghi đè) dữ liệu!');
+      localStorage.setItem('todoAppData', JSON.stringify({ tasks, notes, lastSaved: new Date().toISOString() }));
+      if (typeof renderTasks==='function') renderTasks();
+      if (typeof renderNotes==='function') renderNotes();
+      if (typeof updateTaskStats==='function') updateTaskStats();
+      if (typeof updateNoteStats==='function') updateNoteStats();
+      if (typeof showToast==='function') showToast('Đã nhập (ghi đè) dữ liệu!');
       return;
     }
 
-    // MERGE (default)
+    // MERGE
     const byId = (arr) => {
       const m = new Map();
       for (const it of arr) m.set(it.id, it);
       return m;
     };
-
-    const taskMap = byId(tasks);
-    const noteMap = byId(notes);
+    const taskMap = byId(tasks || []);
+    const noteMap = byId(notes || []);
 
     for (const t of incomingTasks) {
       if (taskMap.has(t.id)) {
-        // If both exist, keep the one with newer createdAt/completedTime presence
         const cur = taskMap.get(t.id);
         const curDate = new Date(cur.createdAt || 0);
         const incDate = new Date(t.createdAt || 0);
-        if (incDate > curDate) {
-          taskMap.set(t.id, t);
-        }
+        if (incDate > curDate) taskMap.set(t.id, t);
       } else {
         taskMap.set(t.id, t);
       }
@@ -1488,9 +1490,7 @@ function importDataText(text, mode) {
         const cur = noteMap.get(n.id);
         const curDate = new Date(cur.lastModified || cur.createdAt || 0);
         const incDate = new Date(n.lastModified || n.createdAt || 0);
-        if (incDate > curDate) {
-          noteMap.set(n.id, n);
-        }
+        if (incDate > curDate) noteMap.set(n.id, n);
       } else {
         noteMap.set(n.id, n);
       }
@@ -1498,18 +1498,202 @@ function importDataText(text, mode) {
 
     tasks = Array.from(taskMap.values()).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     notes = Array.from(noteMap.values()).sort((a,b) => new Date(b.lastModified||b.createdAt) - new Date(a.lastModified||a.createdAt));
-
-    saveData();
-    renderTasks();
-    renderNotes();
-    updateTaskStats();
-    updateNoteStats();
-    showToast('Đã nhập (gộp) dữ liệu!');
+    localStorage.setItem('todoAppData', JSON.stringify({ tasks, notes, lastSaved: new Date().toISOString() }));
+    if (typeof renderTasks==='function') renderTasks();
+    if (typeof renderNotes==='function') renderNotes();
+    if (typeof updateTaskStats==='function') updateTaskStats();
+    if (typeof updateNoteStats==='function') updateNoteStats();
+    if (typeof showToast==='function') showToast('Đã nhập (gộp) dữ liệu!');
   } catch (e) {
     console.error(e);
-    showToast('File không đúng định dạng JSON mong đợi!', 'error');
+    if (typeof showToast==='function') showToast('File không đúng định dạng JSON mong đợi!', 'error');
   }
 }
+
+
+// ==============================
+// = File System Access (Offline)
+// ==============================
+const DB_NAME = 'todo-handle-db';
+const DB_STORE = 'handles';
+let dataFileHandle = null;
+let savingQueued = false;
+
+// IndexedDB helpers
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbSet(key, val) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).put(val, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbGet(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const req = tx.objectStore(DB_STORE).get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function showFileLabel(text) {
+  const el = document.getElementById('dataFileLabel');
+  if (el) el.textContent = text || '';
+}
+
+async function requestWritePermission(handle) {
+  const opts = { mode: 'readwrite' };
+  try {
+    const st1 = await handle.queryPermission(opts);
+    if (st1 === 'granted') return true;
+    const st2 = await handle.requestPermission(opts);
+    return st2 === 'granted';
+  } catch {
+    return false;
+  }
+}
+
+async function connectDataFile() {
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'congviec-ghichu.json',
+      types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+    });
+    if (!(await requestWritePermission(handle))) {
+      if (typeof showToast==='function') showToast('Chưa có quyền ghi vào tệp đã chọn.', 'error');
+      return;
+    }
+    dataFileHandle = handle;
+    await idbSet('dataFileHandle', handle);
+    await saveAllToFile();
+    showFileLabel(await resolveHandleName(handle));
+    if (typeof showToast==='function') showToast('Đã kết nối & lưu dữ liệu vào tệp.');
+  } catch (e) {}
+}
+
+async function changeDataFile() {
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      multiple: false,
+      types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+    });
+    if (!(await requestWritePermission(handle))) {
+      if (typeof showToast==='function') showToast('Chưa có quyền ghi vào tệp đã chọn.', 'error');
+      return;
+    }
+    dataFileHandle = handle;
+    await idbSet('dataFileHandle', handle);
+    await loadFromCurrentFile();
+    await saveAllToFile();
+    showFileLabel(await resolveHandleName(handle));
+    if (typeof showToast==='function') showToast('Đã chuyển sang tệp dữ liệu mới.');
+  } catch (e) {}
+}
+
+async function manualSave() {
+  if (!dataFileHandle) {
+    if (typeof showToast==='function') showToast('Chưa kết nối tệp dữ liệu. Bấm "Kết nối tệp dữ liệu".', 'error');
+    return;
+  }
+  await saveAllToFile();
+  if (typeof showToast==='function') showToast('Đã lưu vào tệp.');
+}
+
+async function reloadFromFile() {
+  if (!dataFileHandle) {
+    if (typeof showToast==='function') showToast('Chưa kết nối tệp dữ liệu.', 'error');
+    return;
+  }
+  await loadFromCurrentFile();
+  if (typeof showToast==='function') showToast('Đã tải lại từ tệp.');
+}
+
+async function resolveHandleName(handle) {
+  try {
+    const file = await handle.getFile();
+    return `Tệp: ${file.name} (${Math.round(file.size/1024)} KB)`;
+  } catch {
+    return 'Tệp dữ liệu đã kết nối';
+  }
+}
+
+async function saveAllToFile() {
+  if (!dataFileHandle) return;
+  const stored = localStorage.getItem('todoAppData');
+  let obj;
+  try { obj = stored ? JSON.parse(stored) : { tasks, notes }; }
+  catch { obj = { tasks, notes }; }
+  obj.lastSaved = new Date().toISOString();
+  const writable = await dataFileHandle.createWritable();
+  await writable.write(JSON.stringify(obj, null, 2));
+  await writable.close();
+}
+
+async function loadFromCurrentFile() {
+  if (!dataFileHandle) return;
+  const file = await dataFileHandle.getFile();
+  const text = await file.text();
+  try {
+    const obj = JSON.parse(text);
+    tasks = Array.isArray(obj.tasks) ? obj.tasks : (window.tasks || []);
+    notes = Array.isArray(obj.notes) ? obj.notes : (window.notes || []);
+    localStorage.setItem('todoAppData', JSON.stringify({ tasks, notes, lastSaved: obj.lastSaved || new Date().toISOString() }));
+    typeof renderTasks==='function' && renderTasks();
+    typeof renderNotes==='function' && renderNotes();
+    typeof updateTaskStats==='function' && updateTaskStats();
+    typeof updateNoteStats==='function' && updateNoteStats();
+  } catch (e) {
+    console.error('Invalid JSON in file', e);
+    if (typeof showToast==='function') showToast('Nội dung tệp không đúng định dạng.', 'error');
+  }
+}
+
+// Intercept localStorage writes to auto-save
+(function interceptLocalStorage() {
+  const orig = Storage.prototype.setItem;
+  Storage.prototype.setItem = function(key, value) {
+    const result = orig.apply(this, arguments);
+    if (key === 'todoAppData') {
+      if (!savingQueued) {
+        savingQueued = true;
+        setTimeout(async () => {
+          try { await saveAllToFile(); } finally { savingQueued = false; }
+        }, 700);
+      }
+    }
+    return result;
+  };
+})();
+
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const handle = await idbGet('dataFileHandle');
+    if (handle) {
+      dataFileHandle = handle;
+      showFileLabel(await resolveHandleName(handle));
+      await requestWritePermission(handle);
+      await loadFromCurrentFile();
+    } else {
+      showFileLabel('Chưa kết nối tệp.');
+    }
+  } catch (e) {
+    showFileLabel('Chưa kết nối tệp.');
+  }
+});
 
 </script>
 </body>
