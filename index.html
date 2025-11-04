@@ -2,1060 +2,442 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>QUẢN LÝ CÔNG VIỆC</title>
+  <title>QUẢN LÝ CÔNG VIỆC — Liquid Glass Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="color-scheme" content="light dark" />
   <link rel="manifest" href="/manifest.json">
-  
   <style>
-    /* ========== iOS 26 Liquid Glass CSS ========== */
-    * { 
-        box-sizing: border-box; 
-        transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+    :root{
+      --bg0: #0e1116;
+      --bg1: #131a24;
+      --glass: rgba(255,255,255,.08);
+      --glass-light: rgba(255,255,255,.35);
+      --glass-dark: rgba(20,20,20,.45);
+      --primary: #3aa0ff;
+      --primary-2: #007bff;
+      --accent: #ffc107;
+      --gold: #f6cf6a;
+      --warm-blue: #7ab8ff;
+      --success: #28a745;
+      --danger: #dc3545;
+      --info: #17a2b8;
+      --shadow-outer: 0 10px 30px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset;
+      --shadow-inner: inset 0 2px 20px rgba(255,255,255,.12), inset 0 -6px 25px rgba(0,0,0,.25);
+      --bezier: cubic-bezier(.22,.61,.36,1);
     }
 
-    /* Thiết lập nền chung */
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-      padding: 15px; 
-      margin: 0;
-      background-color: #e9ecef; /* Nền sáng */
-      color: #1a1a1a;
+    *{box-sizing:border-box;transition: background-color .35s var(--bezier), color .35s var(--bezier),
+       box-shadow .5s var(--bezier), transform .45s var(--bezier), border-color .35s var(--bezier),
+       opacity .35s var(--bezier), filter .45s var(--bezier)}
+
+    /* ================= 1) GRADIENT BACKGROUND động ================= */
+    body{
+      margin:0; padding:18px; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color:#111;
+      background: radial-gradient(1200px 800px at 10% 0%, #e8f0ff 0%, #fff 30%, #f3f7ff 60%, #f7fbff 100%);
+      min-height:100svh; overflow-x:hidden; position:relative;
     }
-    body.dark-mode { 
-      background-color: #121212; /* Nền tối */
-      color: #f4f4f4; 
+    /* animated gradient layer */
+    .bg-anim{
+      position:fixed; inset:-30% -30%;
+      background: conic-gradient(from 180deg at 50% 50%, rgba(70,170,255,.25), rgba(255,170,70,.18), rgba(120,70,255,.22), rgba(70,170,255,.25));
+      filter: blur(80px) saturate(120%);
+      animation: swirl 22s linear infinite;
+      z-index:-2;
     }
-    
-    /* Liquid Glass Base - Tạo hiệu ứng kính mờ nổi */
-    .glass-card {
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        background-color: rgba(255, 255, 255, 0.7); /* Kính sáng, hơi trong */
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 20px; /* Góc bo lớn */
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-    body.dark-mode .glass-card {
-        background-color: rgba(45, 45, 45, 0.8); /* Kính tối, hơi trong */
-        border: 1px solid rgba(68, 68, 68, 0.5);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    @keyframes swirl{ to{ transform: rotate(360deg) scale(1.15);} }
+
+    /* blur overlay depth */
+    .bg-blur{
+      position:fixed; inset:0; backdrop-filter: blur(12px) saturate(115%); -webkit-backdrop-filter: blur(12px) saturate(115%);
+      z-index:-1; pointer-events:none;
     }
 
-    /* Header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 0;
+    /* Dark mode gradient sang trọng */
+    body.dark-mode{
+      color:#f4f6fb;
+      background: radial-gradient(1200px 800px at 15% -10%, #10151d 0%, #0b0e14 40%, #0a0d12 100%);
     }
-    
-    .title {
-      font-size: 2em;
-      font-weight: 700;
-      flex-grow: 1;
-      margin: 0;
-      color: #007bff; /* Màu chủ đạo */
-      text-align: left;
+    body.dark-mode .bg-anim{ background: conic-gradient(from 0deg at 50% 50%, rgba(28,124,255,.22), rgba(249,198,92,.22), rgba(100,120,255,.2), rgba(28,124,255,.22)); filter: blur(90px) saturate(140%);}
+
+    /* ================= 2) GLASS EFFECT nâng cao ================= */
+    .glass{
+      position:relative; border-radius:22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.28)) ;
+      border:1px solid rgba(255,255,255,.35);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: var(--shadow-outer), var(--shadow-inner);
     }
-    body.dark-mode .title {
-        color: #ffc107;
+    body.dark-mode .glass{
+      background: linear-gradient(180deg, rgba(22,22,22,.5), rgba(18,18,18,.35));
+      border:1px solid rgba(255,255,255,.06);
+    }
+    /* Border highlight chạy viền */
+    .glass::after{
+      content:""; position:absolute; inset:0; border-radius:inherit; padding:1px;
+      background: linear-gradient(135deg, rgba(255,255,255,.65), rgba(255,255,255,0) 30%, rgba(255,255,255,.25) 70%, rgba(255,255,255,0));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events:none; opacity:.9;
     }
 
-    /* Control Bar - Thay thế Nav Tabs cũ, áp dụng Liquid Glass */
-    .control-bar {
-        display: flex;
-        background: transparent;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
+    /* ================= 3) Animations tinh tế ================= */
+    .hover-lift{ transform: translateY(0); }
+    .hover-lift:hover{ transform: translateY(-4px) scale(1.01); }
 
-    /* Input Fields & Selects */
-    input, select, textarea {
-      width: 100%;
-      padding: 15px;
-      border: none; /* Bỏ border, dùng shadow/glass effect */
-      border-radius: 12px;
-      font-size: 16px;
-      background-color: rgba(255, 255, 255, 0.8);
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s;
-      font-family: inherit;
+    /* Shimmer for buttons */
+    .shimmer{ position:relative; overflow:hidden; }
+    .shimmer::before{
+      content:""; position:absolute; inset:-200% -50% auto -50%; height:200%; width:30%; transform: skewX(-25deg);
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 100%);
+      animation: shimmer 2.4s var(--bezier) infinite;
     }
-    
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
-      background-color: #fff;
-    }
-    
-    body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
-      background-color: rgba(51, 51, 51, 0.9);
-      color: #f4f4f4;
-      box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.1);
-    }
-    
-    body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus {
-      box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.5);
-    }
+    @keyframes shimmer{ 0%{left:-60%} 100%{left:130%} }
 
-    /* Button Styling */
-    .add-btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #007bff, #0056b3); /* Blue Gradient */
-      color: white;
-      border: none;
-      border-radius: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-    }
-    
-    .add-btn:hover {
-      background: linear-gradient(135deg, #0056b3, #003d80);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-    }
+    /* Ripple effect */
+    .ripple{ position:relative; overflow:hidden; }
+    .ripple span.r{ position:absolute; border-radius:50%; transform:scale(0); animation:rip 600ms var(--bezier); background:rgba(255,255,255,.55); pointer-events:none }
+    @keyframes rip{ to{ transform:scale(12); opacity:0 } }
 
-    /* Form and Input Layout */
-    .form-container {
-        padding: 20px;
-        margin-bottom: 25px;
-        /* Áp dụng Liquid Glass cho Form */
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        background-color: rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-    body.dark-mode .form-container {
-        background-color: rgba(45, 45, 45, 0.6);
-        border: 1px solid rgba(68, 68, 68, 0.4);
-    }
-    
-    .input-row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-    .input-row > * {
-        flex: 1;
-    }
-    
-    /* Task/Note list Item - Áp dụng Liquid Glass */
-    .item-list { 
-      list-style: none; 
-      padding: 0; 
-      margin: 0;
-    }
-    
-    .item {
-      padding: 20px;
-      margin-bottom: 15px;
-      /* Kế thừa Liquid Glass */
-      transition: all 0.3s;
-      cursor: pointer;
-      position: relative;
-    }
+    /* Pin pulse */
+    .pin-icon{ animation: pinPulse 2.2s ease-in-out infinite; transform-origin: center; }
+    @keyframes pinPulse{ 0%,100%{ transform: scale(1); filter: drop-shadow(0 0 6px rgba(255,193,7,.55));} 50%{ transform: scale(1.12);} }
 
-    .item:hover {
-        transform: translateY(-3px); /* Subtle lift */
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
-    
-    .item-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 5px;
-      line-height: 1.4;
-    }
+    /* Modal fade/slide */
+    .modal{ display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.45); opacity:0 }
+    .modal.show{ display:block; animation: modalFade .35s var(--bezier) forwards; }
+    @keyframes modalFade{ from{ opacity:0 } to{ opacity:1 } }
+    .modal-content{ width:min(560px,92vw); margin:8svh auto; padding:22px }
+    .modal-content.animate{ animation: slideUp .35s var(--bezier) }
+    @keyframes slideUp{ from{ transform: translateY(18px); opacity:.7 } to{ transform:none; opacity:1 } }
 
-    .item-meta {
-      font-size: 13px;
-      color: #666;
-      margin-top: 5px;
-      padding-left: 5px; /* Thụt lề nhẹ cho thông tin meta */
-      border-left: 2px solid #ccc;
-    }
-    .item-meta strong {
-        font-weight: 600;
-        color: #333;
-    }
-    body.dark-mode .item-meta {
-      color: #ccc;
-      border-left: 2px solid #555;
-    }
-    body.dark-mode .item-meta strong {
-        color: #fff;
-    }
-    
-    .item.completed { opacity: 0.6; }
-    .item.completed .item-title { text-decoration: line-through; }
+    /* Toast */
+    .toast{ position:fixed; left:50%; bottom: -80px; transform: translateX(-50%); padding:12px 16px; border-radius:14px; font-weight:600; z-index:1200; pointer-events:none }
+    .toast.show{ bottom:24px; animation: toastIn .4s var(--bezier); }
+    @keyframes toastIn{ from{ bottom:-80px; opacity:0 } to{ bottom:24px; opacity:1 } }
 
-    /* Tags */
-    .tag {
-      background: #007bff;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 15px;
-      font-size: 12px;
-      font-weight: 500;
-      margin-right: 5px;
-      margin-top: 5px;
-      display: inline-block;
-    }
-    body.dark-mode .tag {
-      background: #ffc107;
-      color: #000;
-    }
+    /* ================= 4) Typography & Colors ================= */
+    .title{ font-size: clamp(24px, 3.2vw, 40px); font-weight:800; letter-spacing:.2px; margin:0; background:linear-gradient(90deg, #007bff, #5ca1ff, #9ad2ff); -webkit-background-clip:text; background-clip:text; color:transparent }
+    body.dark-mode .title{ background: linear-gradient(90deg, var(--gold), #ffd77a, #fff2c1); }
 
-    /* Filter Buttons - Nút điều khiển Liquid Glass */
-    .filter-buttons {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      padding: 10px;
-      border-radius: 15px;
-      /* Liquid Glass cho thanh filter */
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      background-color: rgba(255, 255, 255, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    body.dark-mode .filter-buttons {
-        background-color: rgba(45, 45, 45, 0.6);
-        border: 1px solid rgba(68, 68, 68, 0.4);
-    }
-    
-    .filter-buttons button {
-      flex: 1;
-      padding: 10px 15px;
-      border: none;
-      background: transparent;
-      color: inherit;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    
-    .filter-buttons button:hover,
-    .filter-buttons button.active {
-      background: rgba(0, 123, 255, 0.1);
-      color: #007bff;
-    }
-    
-    body.dark-mode .filter-buttons button:hover,
-    body.dark-mode .filter-buttons button.active {
-      background: rgba(255, 193, 7, 0.1);
-      color: #ffc107;
-    }
+    .subtle{ color: #657289 }
+    body.dark-mode .subtle{ color:#a5b3c9 }
+
+    /* Gradient buttons w/ multi shadows */
+    .btn{ border:none; border-radius:16px; padding:12px 16px; font-weight:700; font-size:16px; cursor:pointer; color:#fff; box-shadow: 0 10px 28px rgba(0,123,255,.28), 0 1px 0 rgba(255,255,255,.35) inset; }
+    .btn-primary{ background: linear-gradient(135deg, #3aa0ff, #007bff 55%, #0056c9) }
+    .btn-warm{ background: linear-gradient(135deg, #ffdd87, #ffc107 55%, #f6b83b); color:#2c2100; box-shadow: 0 10px 28px rgba(255,193,7,.32), 0 1px 0 rgba(255,255,255,.45) inset }
+    .btn-danger{ background: linear-gradient(135deg, #ff7a7a, #dc3545) }
+    .btn-info{ background: linear-gradient(135deg, #6be4ff, #17a2b8) }
+    .btn-ghost{ background: transparent; color:inherit; border:1px solid rgba(255,255,255,.35) }
+
+    /* Focus glow */
+    input, select, textarea{ width:100%; padding:14px 14px; border-radius:14px; border:1px solid rgba(0,0,0,.06); background: rgba(255,255,255,.7); box-shadow: inset 0 1px 3px rgba(0,0,0,.06) }
+    input:focus, select:focus, textarea:focus{ outline:none; box-shadow: 0 0 0 4px rgba(0,123,255,.22), inset 0 1px 3px rgba(0,0,0,.06); background:#fff }
+    body.dark-mode input, body.dark-mode select, body.dark-mode textarea{ background: rgba(40,40,40,.85); border-color: rgba(255,255,255,.06); color:#f1f3f6 }
+    body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus{ box-shadow: 0 0 0 4px rgba(255,193,7,.28) }
+
+    /* ================= Layout & Existing Sections ================= */
+    .container{ max-width:1100px; margin:0 auto }
+    .header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px }
+    .header-tools{ display:flex; gap:8px; flex-wrap:wrap }
+
+    .control-bar{ display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 }
+
+    .form-container{ padding:18px; margin-bottom:22px }
+    .stats-container{ padding:18px; margin-top:18px }
+
+    .input-row{ display:grid; grid-template-columns:repeat(2, 1fr); gap:12px}
+    @media (min-width:820px){ .input-row{ grid-template-columns:repeat(3, 1fr)} }
+    @media (max-width:640px){ .input-row{ grid-template-columns:1fr } }
+
+    .item-list{ list-style:none; padding:0; margin:0 }
+    .item{ position:relative; padding:18px; margin:0 0 14px; cursor:pointer }
+    .item:hover{ box-shadow: 0 18px 36px rgba(0,0,0,.15) }
+    .item.completed{ opacity:.65 }
+    .item.completed .item-title{text-decoration: line-through}
+    .item-title{ font-size:18px; font-weight:700; line-height:1.4; margin-bottom:6px }
+    .item-meta{ font-size:13px; color:#5f6b7a; margin-top:6px; padding-left:8px; border-left:2px solid #cbd5e1 }
+    body.dark-mode .item-meta{ color:#cbd5e1; border-left:2px solid #455165 }
+
+    .tag{ background:#007bff; color:#fff; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; margin-right:6px; margin-top:6px; display:inline-block }
+    body.dark-mode .tag{ background:#ffc107; color:#1a1a1a }
+
+    .filter-buttons{ display:flex; gap:8px; flex-wrap:wrap; padding:10px; border-radius:16px }
+    .filter-buttons .btn{ padding:10px 14px }
+
+    /* Search icon scale animation */
+    .search-container{ position:relative; margin:12px 0 18px }
+    .search-input{ padding-right:44px }
+    .search-icon{ position:absolute; right:14px; top:50%; transform: translateY(-50%) scale(1); font-size:18px; transition: transform .25s var(--bezier) }
+    .search-input:focus + .search-icon{ transform: translateY(-50%) scale(1.18) }
+
+    /* ================= 5) Stats Cards ================= */
+    .stats-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:12px }
+    @media (min-width:820px){ .stats-grid{ grid-template-columns: repeat(4,1fr) } }
+    .stat-item{ padding:16px; text-align:center }
+    .stat-number{ font-size: clamp(22px, 4.2vw, 36px); font-weight:800; background: linear-gradient(90deg, #007bff, #5ca1ff, #9ad2ff); -webkit-background-clip:text; background-clip:text; color:transparent }
+    body.dark-mode .stat-number{ background: linear-gradient(90deg, #ffd77a, #ffe6a6, #fff2c1) }
+    .stat-label{ opacity:.8; font-weight:600 }
+
+    /* ================= 6) Interactive Elements ================= */
+    .item-actions{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; margin-top:14px }
+
+    /* ================= 7) Dark Mode accents ================= */
+    .dark-mode-toggle{ border:none; border-radius:14px; padding:10px 14px; font-weight:700; cursor:pointer }
+    .dark-mode-toggle.primary{ background: linear-gradient(135deg, var(--warm-blue), var(--primary)); color:#051326 }
+    .dark-mode-toggle.warm{ background: linear-gradient(135deg, #fff0b0, var(--gold)); color:#2c2100 }
 
     /* Utility */
-    .input-group { margin-bottom: 15px; }
-
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-      .input-row {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .filter-buttons {
-        gap: 5px;
-      }
-      .filter-buttons button {
-        flex: none;
-        width: calc(50% - 5px);
-      }
-    }
-    /* Thêm các style khác (Dark Mode Toggle, Search, Modal, Stats) */
-    /* ... */
-
-    .dark-mode-toggle {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 15px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-    body.dark-mode .dark-mode-toggle {
-        background: #ffc107;
-        color: #000;
-    }
-    .btn-info {
-        background: #17a2b8;
-        color: white;
-        border-radius: 10px;
-    }
-    .btn-warning {
-        background: #ffc107;
-        color: #000;
-        border-radius: 10px;
-    }
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-        border-radius: 10px;
-    }
-    .item-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 15px;
-    }
-    .item-actions button {
-        flex: 1;
-        padding: 8px 12px;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-        border-radius: 10px;
-    }
-    
-    /* Thêm style cho nút pin */
-    .pin-icon {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 20px;
-        color: #ffc107;
-        text-shadow: 0 0 5px rgba(0,0,0,0.2);
-    }
-    
-    .item.pinned {
-        border: 2px solid #ffc107;
-        background-color: rgba(255, 255, 200, 0.7); /* Nền nổi bật hơn */
-    }
-    body.dark-mode .item.pinned {
-        border: 2px solid #ffc107;
-        background-color: rgba(61, 51, 0, 0.8);
-    }
-    .search-container {
-        position: relative;
-        margin-bottom: 20px;
-    }
-    .search-icon {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        color: #666;
-    }
-    .search-input {
-        padding-right: 45px;
-    }
-    /* Modal styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 100;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-        padding-top: 60px;
-    }
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 20px;
-        border-radius: 20px;
-        width: 90%;
-        max-width: 500px;
-    }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
+    .center{ text-align:center }
   </style>
 </head>
 <body>
-  
-  <div class="header">
-    <h1 class="title">📋 Quản Lý Công Việc</h1>
-    <button class="dark-mode-toggle" onclick="toggleDarkMode()">☀️/🌙</button>
-  </div>
-  
-  <div class="header-tools" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
-    <button class="dark-mode-toggle" onclick="connectDataFile()">🔗 Kết nối tệp</button>
-    <button class="dark-mode-toggle" onclick="changeDataFile()">📂 Chọn tệp</button>
-    <button class="dark-mode-toggle" onclick="manualSave()">💾 Lưu ngay</button>
-    <button class="dark-mode-toggle" onclick="reloadFromFile()">↩️ Tải lại</button>
-    <span id="dataFileLabel" style="font-size:12px; opacity:0.8;"></span>
-    <button class="dark-mode-toggle" onclick="exportData()">⬇️ Xuất</button>
-    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImportFile(this, 'merge')">
-    <button class="dark-mode-toggle" onclick="document.getElementById('importFile').click()">⬆️ Nhập (Hợp nhất)</button>
-  </div>
-  
-  <div id="tasksTab" class="tab-content active">
-    
-    <div class="form-container">
-      <div class="input-group">
-        <input type="text" id="taskInput" placeholder="Nội dung công việc">
-      </div>
-      
-      <div class="input-row">
-        <input type="datetime-local" id="receiveTime" placeholder="Thời gian nhận công việc">
-        <input type="date" id="endTime" placeholder="Hạn hoàn thành">
-        <select id="prioritySelect">
-          <option value="low">Độ ưu tiên: Thấp</option>
-          <option value="medium" selected>Độ ưu tiên: Trung bình</option>
-          <option value="high">Độ ưu tiên: Cao</option>
-        </select>
-      </div>
-      
-      <div class="input-row">
-        <input type="text" id="assignedToInput" placeholder="👤 Giao việc cho ai (người thực hiện)">
-        <input type="text" id="taskTags" placeholder="🏷️ Thẻ (cách nhau bởi dấu phẩy)">
-      </div>
-      
-      <button class="add-btn" onclick="addTask()">➕ THÊM CÔNG VIỆC</button>
+  <!-- Animated background layers -->
+  <div class="bg-anim" aria-hidden="true"></div>
+  <div class="bg-blur" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1 class="title">📋 Quản Lý Công Việc</h1>
+      <button class="dark-mode-toggle warm ripple shimmer" id="darkToggle">☀️/🌙</button>
     </div>
 
-    <div class="search-container">
-      <input type="text" class="search-input" id="taskSearch" placeholder="🔍 Tìm kiếm công việc..." onkeyup="searchTasks()">
-      <span class="search-icon">🔍</span>
+    <div class="header-tools" style="align-items:center">
+      <button class="btn btn-primary ripple shimmer" onclick="connectDataFile()">🔗 Kết nối tệp</button>
+      <button class="btn btn-info ripple" onclick="changeDataFile()">📂 Chọn tệp</button>
+      <button class="btn btn-warm ripple" onclick="manualSave()">💾 Lưu ngay</button>
+      <button class="btn btn-ghost ripple" onclick="reloadFromFile()">↩️ Tải lại</button>
+      <button class="btn btn-ghost ripple" onclick="exportData()">⬇️ Xuất</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImportFile(this, 'merge')">
+      <button class="btn btn-ghost ripple" onclick="document.getElementById('importFile').click()">⬆️ Nhập (Hợp nhất)</button>
+      <span id="dataFileLabel" class="subtle"></span>
     </div>
-    
-    <div class="filter-buttons">
-      <button class="active" onclick="setTaskFilter('all')">Tất cả</button>
-      <button onclick="setTaskFilter('active')">Chưa hoàn thành</button>
-      <button onclick="setTaskFilter('completed')">Đã hoàn thành</button>
-      <button onclick="setTaskFilter('pinned')">Đã ghim</button>
+
+    <div id="tasksTab" class="tab-content active">
+      <div class="form-container glass hover-lift">
+        <div class="input-group">
+          <input type="text" id="taskInput" placeholder="Nội dung công việc">
+        </div>
+        <div class="input-row">
+          <input type="datetime-local" id="receiveTime" placeholder="Thời gian nhận công việc">
+          <input type="date" id="endTime" placeholder="Hạn hoàn thành">
+          <select id="prioritySelect">
+            <option value="low">Độ ưu tiên: Thấp</option>
+            <option value="medium" selected>Độ ưu tiên: Trung bình</option>
+            <option value="high">Độ ưu tiên: Cao</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <input type="text" id="assignedToInput" placeholder="👤 Giao việc cho ai (người thực hiện)">
+          <input type="text" id="taskTags" placeholder="🏷️ Thẻ (cách nhau bởi dấu phẩy)">
+        </div>
+        <button class="btn btn-primary ripple shimmer" onclick="addTask()">➕ THÊM CÔNG VIỆC</button>
+      </div>
+
+      <div class="search-container">
+        <input type="text" class="search-input" id="taskSearch" placeholder="🔍 Tìm kiếm công việc..." onkeyup="searchTasks()">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="filter-buttons glass">
+        <button class="btn btn-ghost ripple" data-filter="all" onclick="setTaskFilter('all'); setActiveFilter(this)">Tất cả</button>
+        <button class="btn btn-ghost ripple" data-filter="active" onclick="setTaskFilter('active'); setActiveFilter(this)">Chưa hoàn thành</button>
+        <button class="btn btn-ghost ripple" data-filter="completed" onclick="setTaskFilter('completed'); setActiveFilter(this)">Đã hoàn thành</button>
+        <button class="btn btn-ghost ripple" data-filter="pinned" onclick="setTaskFilter('pinned'); setActiveFilter(this)">Đã ghim</button>
+      </div>
+
+      <ul id="taskList" class="item-list"></ul>
+
+      <div class="stats-container glass hover-lift">
+        <h3 style="margin-top:0; font-weight:800">📊 Thống kê Công việc</h3>
+        <div class="stats-grid">
+          <div class="stat-item glass">
+            <div class="stat-number" id="totalTasks">0</div>
+            <div class="stat-label">Tổng cộng</div>
+          </div>
+          <div class="stat-item glass">
+            <div class="stat-number" id="completedTasks">0</div>
+            <div class="stat-label">Hoàn thành</div>
+          </div>
+          <div class="stat-item glass">
+            <div class="stat-number" id="activeTasks">0</div>
+            <div class="stat-label">Đang chờ</div>
+          </div>
+          <div class="stat-item glass">
+            <div class="stat-number" id="pinnedTasks">0</div>
+            <div class="stat-label">Đã ghim</div>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <ul id="taskList" class="item-list">
-      </ul>
-    
-    <div class="stats-container glass-card">
-      <h3 style="margin-top:0;">📊 Thống kê Công việc</h3>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number" id="totalTasks">0</div>
-          <div class="stat-label">Tổng cộng</div>
+
+    <!-- Modal Sửa -->
+    <div id="editTaskModal" class="modal" role="dialog" aria-modal="true">
+      <div class="modal-content glass animate">
+        <span class="close" onclick="closeEditTaskModal()" style="float:right; font-size:26px; cursor:pointer">&times;</span>
+        <h2 style="margin-top:0; font-weight:800">✏️ Sửa Công việc</h2>
+        <div class="input-group"><input type="text" id="editTaskInput" placeholder="Nội dung công việc"></div>
+        <div class="input-row">
+          <input type="datetime-local" id="editReceiveTime">
+          <input type="date" id="editEndTime">
+          <select id="editPrioritySelect">
+            <option value="low">Thấp</option>
+            <option value="medium">Trung bình</option>
+            <option value="high">Cao</option>
+          </select>
         </div>
-        <div class="stat-item">
-          <div class="stat-number" id="completedTasks">0</div>
-          <div class="stat-label">Hoàn thành</div>
+        <div class="input-row">
+          <input type="text" id="editAssignedToInput" placeholder="👤 Giao việc cho ai (người thực hiện)">
         </div>
-        <div class="stat-item">
-          <div class="stat-number" id="activeTasks">0</div>
-          <div class="stat-label">Đang chờ</div>
+        <div class="input-row">
+          <input type="text" id="editTaskTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
         </div>
-        <div class="stat-item">
-          <div class="stat-number" id="pinnedTasks">0</div>
-          <div class="stat-label">Đã ghim</div>
+        <div class="input-group">
+          <label for="editHistory" style="font-weight:700; margin-bottom:6px; display:block">Lịch sử Sửa/Chuyển giao:</label>
+          <textarea id="editHistory" placeholder="Lịch sử sửa chữa, chuyển giao công việc..."></textarea>
         </div>
+        <button class="btn btn-warm ripple" onclick="saveEditTask()">💾 LƯU THAY ĐỔI</button>
       </div>
     </div>
-    
-  </div> <div id="editTaskModal" class="modal">
-    <div class="modal-content glass-card">
-      <span class="close" onclick="closeEditTaskModal()">&times;</span>
-      <h2>✏️ Sửa Công việc</h2>
-      <div class="input-group">
-        <input type="text" id="editTaskInput" placeholder="Nội dung công việc">
-      </div>
-      <div class="input-row">
-        <input type="datetime-local" id="editReceiveTime">
-        <input type="date" id="editEndTime">
-        <select id="editPrioritySelect">
-          <option value="low">Thấp</option>
-          <option value="medium">Trung bình</option>
-          <option value="high">Cao</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <input type="text" id="editAssignedToInput" placeholder="👤 Giao việc cho ai (người thực hiện)">
-      </div>
-      <div class="input-row">
-        <input type="text" id="editTaskTags" placeholder="Thẻ (cách nhau bởi dấu phẩy)">
-      </div>
-      <div class="input-group">
-        <label for="editHistory" style="font-weight: bold; margin-bottom: 5px; display: block;">Lịch sử Sửa/Chuyển giao (Chỉ cập nhật khi có thay đổi quan trọng):</label>
-        <textarea id="editHistory" placeholder="Lịch sử sửa chữa, chuyển giao công việc..."></textarea>
-      </div>
-      
-      <button class="add-btn" onclick="saveEditTask()">💾 LƯU THAY ĐỔI</button>
-    </div>
+
+    <div id="toast" class="toast glass"></div>
   </div>
-  
-  <div id="toast" class="toast"></div>
 
   <script>
-    // === Biến toàn cục ===
-    let tasks = [];
-    let currentTaskFilter = 'all';
-    let editingTaskId = null; // Biến để lưu ID của công việc đang chỉnh sửa
+    /* ========= Keep app state from original ========= */
+    let tasks = []; let currentTaskFilter = 'all'; let editingTaskId = null; let dataFileHandle = null; let savingQueued = false;
 
-    // === Tiện ích ===
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `toast show ${type}`;
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
-      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    }
-    
+    // Utility: gradient date display
     function formatDateDisplay(datetimeString, includeTime = true) {
-        if (!datetimeString) return 'N/A';
-        try {
-            const date = new Date(datetimeString);
-            const dateStr = date.toLocaleDateString('vi-VN');
-            if (!includeTime) return dateStr;
-            // Lấy giờ, phút và thêm AM/PM
-            const timeStr = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-            return `${timeStr} ${dateStr}`;
-        } catch {
-            return datetimeString; // Trả về nguyên bản nếu không parse được
-        }
+      if (!datetimeString) return 'N/A';
+      try {
+        const date = new Date(datetimeString);
+        const dateStr = date.toLocaleDateString('vi-VN');
+        if (!includeTime) return dateStr;
+        const timeStr = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        return `${timeStr} ${dateStr}`;
+      } catch { return datetimeString; }
     }
 
-    // === Lưu/Tải Dữ liệu ===
-    function loadData() {
-      const stored = localStorage.getItem('todoAppData');
-      if (stored) {
-        const data = JSON.parse(stored);
-        tasks = data.tasks || [];
+    /* ========= 3) Toast slide-up ========= */
+    function showToast(message, type = 'success'){
+      const el = document.getElementById('toast');
+      el.textContent = message; el.className = `toast glass show ${type}`;
+      setTimeout(()=> { el.classList.remove('show'); }, 3200);
+    }
+
+    /* ========= Dark Mode ========= */
+    function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
+
+    /* ========= Ripple handler ========= */
+    function attachRipple(root=document){
+      root.querySelectorAll('.ripple').forEach(btn=>{
+        btn.addEventListener('click', function(e){
+          const r = document.createElement('span'); r.className='r';
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          r.style.width = r.style.height = size + 'px';
+          r.style.left = (e.clientX - rect.left - size/2) + 'px';
+          r.style.top = (e.clientY - rect.top - size/2) + 'px';
+          this.appendChild(r); setTimeout(()=> r.remove(), 650);
+        });
+      });
+    }
+
+    /* ========= Storage ========= */
+    function loadData(){ const stored = localStorage.getItem('todoAppData'); if (stored){ const data = JSON.parse(stored); tasks = data.tasks || []; } }
+    function saveData(){ localStorage.setItem('todoAppData', JSON.stringify({ tasks, lastSaved: new Date().toISOString() })); }
+
+    /* ========= Render tasks ========= */
+    function renderTasks(){
+      const list = document.getElementById('taskList'); list.innerHTML = '';
+      let filtered = tasks.filter(task=>{ if (currentTaskFilter==='active') return !task.completed; if (currentTaskFilter==='completed') return task.completed; if (currentTaskFilter==='pinned') return task.pinned; return true;});
+      const search = document.getElementById('taskSearch')?.value.toLowerCase();
+      if (search){ filtered = filtered.filter(t => t.text.toLowerCase().includes(search) || t.tags.some(tag => tag.toLowerCase().includes(search)) || t.assignedTo?.toLowerCase().includes(search)); }
+      filtered.sort((a,b)=> b.pinned - a.pinned || new Date(b.createdAt) - new Date(a.createdAt));
+      if (!filtered.length){ list.innerHTML = '<p class="subtle center">Không có công việc nào.</p>'; return; }
+      for (const task of filtered){
+        const li = document.createElement('li'); li.className = 'item glass hover-lift task-item'; if (task.completed) li.classList.add('completed'); if (task.pinned) li.classList.add('pinned');
+        const tagsHtml = task.tags.map(tag=>`<span class="tag">${tag}</span>`).join('');
+        const completedTimeHtml = task.completed && task.completedTime ? `<div class="item-meta" style="color:#28a745; font-weight:700">✅ Hoàn thành: ${formatDateDisplay(task.completedTime, true)}</div>` : '';
+        const assignMeta = task.assignedTo ? `<div class="item-meta">👤 <strong>Giao cho</strong>: ${task.assignedTo}</div>` : '';
+        const receiveMeta = task.receiveTime ? `<div class="item-meta">🕒 <strong>Thời gian nhận</strong>: ${formatDateDisplay(task.receiveTime)}</div>` : '';
+        const deadlineMeta = task.endTime ? `<div class="item-meta">📅 <strong>Hạn hoàn thành</strong>: ${formatDateDisplay(task.endTime, false)}</div>` : '';
+        const historyHtml = (task.editHistory && task.editHistory.length>0) ? `<div class="item-meta" style="margin-top:10px">📜 <strong>Lịch sử sửa/chuyển giao</strong>:<br/>${task.editHistory.map(h=>`<span style="display:block; margin-left:10px; font-size:12px; opacity:.8">- ${h.time}: ${h.note}</span>`).join('')}</div>` : '';
+        li.innerHTML = `${task.pinned ? '<div class="pin-icon">📌</div>' : ''}
+          <div class="item-title">${task.text}</div>
+          ${tagsHtml?`<div class="item-tags">${tagsHtml}</div>`:''}
+          ${receiveMeta}${deadlineMeta}${assignMeta}${historyHtml}
+          <div class="item-meta"><span>✨ Độ ưu tiên: ${task.priority[0].toUpperCase()+task.priority.slice(1)}</span> <span>| Tạo: ${formatDateDisplay(task.createdAt,false)}</span></div>
+          ${completedTimeHtml}
+          <div class="item-actions">
+            <button class="btn btn-info ripple" onclick="event.stopPropagation(); openEditTaskModal(${task.id})">✏️ Sửa</button>
+            <button class="btn btn-warm ripple" onclick="event.stopPropagation(); toggleTaskPin(${task.id})">${task.pinned? '📌 Bỏ ghim':'📌 Ghim'}</button>
+            <button class="btn btn-danger ripple" onclick="event.stopPropagation(); deleteTask(${task.id})">🗑️ Xóa</button>
+            <button class="btn ripple" style="background:${task.completed ? '#dc3545' : '#28a745'}" onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">${task.completed ? '↩️ Hoàn tác' : '✅ Hoàn thành'}</button>
+          </div>`;
+        list.appendChild(li);
       }
+      attachRipple(list);
     }
 
-    function saveData() {
-      localStorage.setItem('todoAppData', JSON.stringify({ tasks, lastSaved: new Date().toISOString() }));
-    }
-
-    // === Công việc ===
-    function addTask() {
-      const text = document.getElementById('taskInput').value.trim();
-      // Đã đổi thành receiveTime (datetime-local)
-      const receive = document.getElementById('receiveTime').value; 
-      const end = document.getElementById('endTime').value;
-      const priority = document.getElementById('prioritySelect').value;
-      const tagsStr = document.getElementById('taskTags').value.trim();
-      const assignedTo = document.getElementById('assignedToInput').value.trim(); 
-      
-      if (!text) return showToast('Vui lòng nhập nội dung công việc!', 'error');
-
-      const task = { 
-        id: Date.now(), 
-        text, 
-        receiveTime: receive, // NEW: Thời gian nhận
-        endTime: end, 
-        priority, 
-        tags: tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(t => t) : [], 
-        completed: false, 
-        completedTime: null, 
-        pinned: false, 
-        assignedTo, 
-        editHistory: [], // NEW: Lịch sử chỉnh sửa/chuyển giao
-        createdAt: new Date().toISOString() 
-      };
-      
-      tasks.unshift(task); 
-      saveData(); 
-      renderTasks(); 
-      updateTaskStats();
-
-      // Clear form fields
-      document.getElementById('taskInput').value = '';
-      document.getElementById('receiveTime').value = '';
-      document.getElementById('endTime').value = '';
-      document.getElementById('prioritySelect').value = 'medium';
-      document.getElementById('taskTags').value = '';
-      document.getElementById('assignedToInput').value = ''; 
+    function addTask(){
+      const text = document.getElementById('taskInput').value.trim(); const receive = document.getElementById('receiveTime').value; const end = document.getElementById('endTime').value; const priority = document.getElementById('prioritySelect').value; const tagsStr = document.getElementById('taskTags').value.trim(); const assignedTo = document.getElementById('assignedToInput').value.trim();
+      if (!text) return showToast('Vui lòng nhập nội dung công việc!','error');
+      const task = { id: Date.now(), text, receiveTime: receive, endTime: end, priority, tags: tagsStr? tagsStr.split(',').map(t=>t.trim()).filter(Boolean):[], completed:false, completedTime:null, pinned:false, assignedTo, editHistory:[], createdAt: new Date().toISOString() };
+      tasks.unshift(task); saveData(); renderTasks(); updateTaskStats();
+      document.getElementById('taskInput').value=''; document.getElementById('receiveTime').value=''; document.getElementById('endTime').value=''; document.getElementById('prioritySelect').value='medium'; document.getElementById('taskTags').value=''; document.getElementById('assignedToInput').value='';
       showToast('Đã thêm công việc!');
     }
 
-    function renderTasks() {
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      
-      let filtered = tasks.filter(task => {
-        if (currentTaskFilter === 'active') return !task.completed;
-        if (currentTaskFilter === 'completed') return task.completed;
-        if (currentTaskFilter === 'pinned') return task.pinned;
-        return true;
-      });
+    function toggleTaskComplete(id){ const task = tasks.find(t=>t.id===id); if (!task) return; task.completed = !task.completed; task.completedTime = task.completed? new Date().toISOString(): null; if (task.completed) task.pinned = false; saveData(); renderTasks(); updateTaskStats(); showToast(task.completed? 'Công việc đã hoàn thành!':'Đã hoàn tác công việc!'); }
+    function deleteTask(id){ if (!confirm('Bạn có chắc chắn muốn xóa công việc này không?')) return; tasks = tasks.filter(t=>t.id!==id); saveData(); renderTasks(); updateTaskStats(); showToast('Đã xóa công việc!'); }
+    function toggleTaskPin(id){ const task = tasks.find(t=>t.id===id); if (!task) return; task.pinned = !task.pinned; saveData(); renderTasks(); updateTaskStats(); showToast(task.pinned? 'Đã ghim công việc!':'Đã bỏ ghim công việc!'); }
+    function setTaskFilter(filter){ currentTaskFilter = filter; renderTasks(); }
+    function setActiveFilter(btn){ document.querySelectorAll('.filter-buttons .btn').forEach(b=>b.classList.remove('btn-primary')); btn.classList.add('btn-primary'); }
+    function searchTasks(){ renderTasks(); }
+    function updateTaskStats(){ document.getElementById('totalTasks').textContent = tasks.length; document.getElementById('completedTasks').textContent = tasks.filter(t=>t.completed).length; document.getElementById('activeTasks').textContent = tasks.filter(t=>!t.completed).length; document.getElementById('pinnedTasks').textContent = tasks.filter(t=>t.pinned).length; }
 
-      const search = document.getElementById('taskSearch')?.value.toLowerCase();
-      if (search) {
-        filtered = filtered.filter(t => 
-          t.text.toLowerCase().includes(search) || 
-          t.tags.some(tag => tag.toLowerCase().includes(search)) ||
-          t.assignedTo?.toLowerCase().includes(search) 
-        );
-      }
+    /* ========= Modal ========= */
+    function openEditTaskModal(id){ editingTaskId = id; const task = tasks.find(t=>t.id===id); if (!task) return; document.getElementById('editTaskInput').value = task.text; const receiveTimeValue = task.receiveTime ? task.receiveTime.substring(0,16) : ''; document.getElementById('editReceiveTime').value = receiveTimeValue; document.getElementById('editEndTime').value = task.endTime; document.getElementById('editPrioritySelect').value = task.priority; document.getElementById('editTaskTags').value = task.tags.join(', '); document.getElementById('editAssignedToInput').value = task.assignedTo || ''; let historyText=''; if (task.editHistory?.length){ historyText = task.editHistory.map(h=>`${h.time}: ${h.note}`).join('\n'); } document.getElementById('editHistory').value = historyText; const m = document.getElementById('editTaskModal'); m.classList.add('show'); }
+    function closeEditTaskModal(){ const m = document.getElementById('editTaskModal'); m.classList.remove('show'); editingTaskId = null; }
+    function saveEditTask(){ const task = tasks.find(t=>t.id===editingTaskId); if (!task) return; const oldAssignedTo = task.assignedTo; const newAssignedTo = document.getElementById('editAssignedToInput').value.trim(); const historyNote = document.getElementById('editHistory').value.trim(); const newReceiveTime = document.getElementById('editReceiveTime').value; task.text = document.getElementById('editTaskInput').value.trim(); task.receiveTime = newReceiveTime; task.endTime = document.getElementById('editEndTime').value; task.priority = document.getElementById('editPrioritySelect').value; task.tags = document.getElementById('editTaskTags').value.trim().split(',').map(t=>t.trim()).filter(Boolean); task.assignedTo = newAssignedTo; const newHistory=[]; if (historyNote){ const lines = historyNote.split('\n').filter(l=>l.trim()!==''); for (const line of lines){ const parts = line.split(':'); if (parts.length>=2){ newHistory.push({ time: parts[0].trim(), note: parts.slice(1).join(':').trim() }); } } }
+      if (oldAssignedTo !== newAssignedTo){ const timeStr = new Date().toLocaleTimeString('vi-VN') + ' ' + new Date().toLocaleDateString('vi-VN'); const note = `Chuyển giao từ **${oldAssignedTo || 'N/A'}** sang **${newAssignedTo || 'N/A'}**`; newHistory.unshift({ time: timeStr, note }); }
+      task.editHistory = newHistory; saveData(); renderTasks(); updateTaskStats(); showToast('Đã cập nhật công việc!'); closeEditTaskModal(); }
 
-      filtered.sort((a, b) => b.pinned - a.pinned || new Date(b.createdAt) - new Date(a.createdAt));
+    /* ========= File Access (kept) ========= */
+    async function idbGet(key){ const stored = localStorage.getItem('idb:'+key); return stored ? JSON.parse(stored) : null; }
+    async function idbSet(key, value){ localStorage.setItem('idb:'+key, JSON.stringify(value)); }
+    function showFileLabel(name){ document.getElementById('dataFileLabel').textContent = `Tệp hiện tại: ${name}`; }
+    async function resolveHandleName(handle){ try{ return handle.name }catch{ return 'Tệp không xác định' } }
+    async function requestWritePermission(handle){ const opts = { mode:'readwrite' }; try{ const st = await handle.queryPermission(opts); if (st==='granted') return true; const st2 = await handle.requestPermission(opts); return st2 === 'granted'; }catch{ return false } }
+    async function saveAllToFile(){ if (!dataFileHandle) return; if (!(await requestWritePermission(dataFileHandle))){ showToast('Không có quyền ghi vào tệp!','error'); return; } try{ const writable = await dataFileHandle.createWritable(); const data = { tasks: window.tasks, lastSaved: new Date().toISOString() }; await writable.write(JSON.stringify(data, null, 2)); await writable.close(); showToast('Đã lưu vào tệp!'); }catch(e){ console.error('Lỗi khi ghi tệp:', e); showToast('Lỗi lưu tệp: '+e.message, 'error'); } }
+    async function loadFromCurrentFile(){ if (!dataFileHandle) return; try{ const file = await dataFileHandle.getFile(); const text = await file.text(); importDataText(text, 'overwrite'); showToast('Đã tải lại dữ liệu từ tệp.'); }catch(e){ console.error('Lỗi khi đọc tệp:', e); showToast('Lỗi đọc tệp: '+e.message, 'error'); } }
+    async function manualSave(){ await saveAllToFile(); }
+    async function reloadFromFile(){ await loadFromCurrentFile(); }
+    function exportData(){ try{ const stored = localStorage.getItem('todoAppData'); const obj = stored ? JSON.parse(stored) : { tasks: window.tasks, lastSaved: new Date().toISOString() }; const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-'); a.href = url; a.download = `congviec-backup-${ts}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast('Đã xuất dữ liệu ra file JSON!'); }catch(e){ console.error(e); showToast('Xuất dữ liệu thất bại!','error'); } }
+    function handleImportFile(input, mode){ const file = input.files && input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { try{ const text = e.target.result; importDataText(text, mode); }catch(err){ console.error(err); showToast('Không thể đọc file!','error'); }finally{ input.value='' } }; reader.readAsText(file); }
+    function importDataText(text, mode){ try{ const incomingData = JSON.parse(text); const incomingTasks = incomingData.tasks || []; if (mode==='overwrite'){ tasks = incomingTasks; } else { const taskMap = new Map(tasks.map(t=>[t.id,t])); for (const t of incomingTasks){ const existing = taskMap.get(t.id); if (existing){ const curDate = new Date(existing.createdAt||0); const incDate = new Date(t.createdAt||0); if (incDate > curDate) taskMap.set(t.id, t); } else { taskMap.set(t.id, t); } } tasks = Array.from(taskMap.values()); } tasks.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)); saveData(); renderTasks(); updateTaskStats(); showToast('Đã nhập dữ liệu thành công!'); }catch(e){ console.error('Invalid JSON', e); showToast('Nội dung tệp không đúng định dạng.','error'); } }
+    async function connectDataFile(){ try{ const handle = await window.showSaveFilePicker({ suggestedName:'congviec.json', types:[{ description:'JSON', accept:{ 'application/json':['.json'] } }] }); if (!(await requestWritePermission(handle))){ showToast('Chưa có quyền ghi vào tệp đã chọn.','error'); return; } dataFileHandle = handle; await idbSet('dataFileHandle', handle); await saveAllToFile(); showFileLabel(await resolveHandleName(handle)); showToast('Đã kết nối & lưu dữ liệu vào tệp.'); }catch(e){ console.error(e); } }
+    async function changeDataFile(){ try{ const [handle] = await window.showOpenFilePicker({ multiple:false, types:[{ description:'JSON', accept:{ 'application/json':['.json'] } }] }); if (!(await requestWritePermission(handle))){ showToast('Chưa có quyền ghi vào tệp đã chọn.','error'); return; } dataFileHandle = handle; await idbSet('dataFileHandle', handle); showFileLabel(await resolveHandleName(handle)); await loadFromCurrentFile(); }catch(e){ console.error(e); } }
 
-      if (filtered.length === 0) {
-        list.innerHTML = '<p class="text-center item-meta">Không có công việc nào.</p>';
-        return;
-      }
+    (function interceptLocalStorage(){ const orig = Storage.prototype.setItem; Storage.prototype.setItem = function(key, value){ const result = orig.apply(this, arguments); if (key==='todoAppData'){ if (!savingQueued){ savingQueued = true; setTimeout(async()=>{ try{ await saveAllToFile(); } finally { savingQueued=false; } }, 700); } } return result; } })();
 
-      for (const task of filtered) {
-        const li = document.createElement('li');
-        li.className = 'item task-item glass-card'; 
-        if (task.completed) li.classList.add('completed');
-        if (task.pinned) li.classList.add('pinned');
-
-        const tagsHtml = task.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-        const completedTimeHtml = task.completed && task.completedTime ? 
-            `<div class="item-meta" style="color: #28a745; font-weight: bold;">✅ Hoàn thành: ${formatDateDisplay(task.completedTime, true)}</div>` : '';
-        
-        // Cập nhật cách hiển thị thông tin
-        const assignMeta = task.assignedTo ? `<div class="item-meta">👤 **Giao cho**: ${task.assignedTo}</div>` : '';
-        const receiveMeta = task.receiveTime ? 
-            `<div class="item-meta">🕒 **Thời gian nhận**: ${formatDateDisplay(task.receiveTime)}</div>` : '';
-        const deadlineMeta = task.endTime ? 
-            `<div class="item-meta">📅 **Hạn hoàn thành**: ${formatDateDisplay(task.endTime, false)}</div>` : '';
-        
-        const historyHtml = (task.editHistory && task.editHistory.length > 0) ?
-            `<div class="item-meta" style="margin-top: 10px;">📜 **Lịch sử sửa/chuyển giao**: <br/>` +
-            task.editHistory.map(h => `<span style="display: block; margin-left: 10px; font-size: 12px; color: #888;">- ${h.time}: ${h.note}</span>`).join('') +
-            `</div>` : '';
-
-
-        li.innerHTML = `
-          ${task.pinned ? '<div class="pin-icon">📌</div>' : ''}
-          <div class="item-title">${task.text}</div>
-          ${tagsHtml ? `<div class="item-tags">${tagsHtml}</div>` : ''}
-          
-          ${receiveMeta}
-          ${deadlineMeta}
-          ${assignMeta}
-          ${historyHtml}
-          
-          <div class="item-meta">
-            <span>✨ Độ ưu tiên: ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
-            <span>| Tạo: ${formatDateDisplay(task.createdAt, false)}</span>
-          </div>
-          ${completedTimeHtml}
-          
-          <div class="item-actions">
-            <button class="btn-info" onclick="event.stopPropagation(); openEditTaskModal(${task.id})">✏️ Sửa</button>
-            <button class="btn-warning" onclick="event.stopPropagation(); toggleTaskPin(${task.id})">${task.pinned ? '📌 Bỏ ghim' : '📌 Ghim'}</button>
-            <button class="btn-danger" onclick="event.stopPropagation(); deleteTask(${task.id})">🗑️ Xóa</button>
-            <button class="btn-primary" style="background: ${task.completed ? '#dc3545' : '#28a745'};" 
-                    onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">
-              ${task.completed ? '↩️ Hoàn tác' : '✅ Hoàn thành'}
-            </button>
-          </div>
-        `;
-        list.appendChild(li);
-      }
-    }
-
-    function toggleTaskComplete(id) {
-      const task = tasks.find(t => t.id === id);
-      if (task) {
-        task.completed = !task.completed;
-        task.completedTime = task.completed ? new Date().toISOString() : null;
-        task.pinned = false; 
-        saveData();
-        renderTasks();
-        updateTaskStats();
-        showToast(task.completed ? 'Công việc đã hoàn thành!' : 'Đã hoàn tác công việc!');
-      }
-    }
-
-    function deleteTask(id) {
-      if (confirm('Bạn có chắc chắn muốn xóa công việc này không?')) {
-        tasks = tasks.filter(t => t.id !== id);
-        saveData();
-        renderTasks();
-        updateTaskStats();
-        showToast('Đã xóa công việc!');
-      }
-    }
-
-    function setTaskFilter(filter) {
-      currentTaskFilter = filter;
-      document.querySelectorAll('#tasksTab .filter-buttons button').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`#tasksTab .filter-buttons button[onclick="setTaskFilter('${filter}')"]`).classList.add('active');
-      renderTasks();
-    }
-
-    function searchTasks() {
-      renderTasks();
-    }
-    
-    function toggleTaskPin(id) {
-      const task = tasks.find(t => t.id === id);
-      if (task) {
-        task.pinned = !task.pinned;
-        saveData();
-        renderTasks();
-        updateTaskStats();
-        showToast(task.pinned ? 'Đã ghim công việc!' : 'Đã bỏ ghim công việc!');
-      }
-    }
-
-    function updateTaskStats() {
-      document.getElementById('totalTasks').textContent = tasks.length;
-      document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length;
-      document.getElementById('activeTasks').textContent = tasks.filter(t => !t.completed).length;
-      document.getElementById('pinnedTasks').textContent = tasks.filter(t => t.pinned).length;
-    }
-
-    // === Edit Task Modal Functions ===
-    function openEditTaskModal(id) {
-      editingTaskId = id;
-      const task = tasks.find(t => t.id === id);
-      if (task) {
-        document.getElementById('editTaskInput').value = task.text;
-        
-        // Xử lý datetime-local: loại bỏ phần Z (nếu có)
-        const receiveTimeValue = task.receiveTime ? task.receiveTime.substring(0, 16) : '';
-        document.getElementById('editReceiveTime').value = receiveTimeValue;
-        
-        document.getElementById('editEndTime').value = task.endTime;
-        document.getElementById('editPrioritySelect').value = task.priority;
-        document.getElementById('editTaskTags').value = task.tags.join(', ');
-        document.getElementById('editAssignedToInput').value = task.assignedTo || ''; 
-        
-        // NEW: Load lịch sử và hiển thị
-        let historyText = '';
-        if (task.editHistory && task.editHistory.length > 0) {
-            historyText = task.editHistory.map(h => `${h.time}: ${h.note}`).join('\n');
-        }
-        document.getElementById('editHistory').value = historyText; 
-        
-        document.getElementById('editTaskModal').style.display = 'block';
-      }
-    }
-
-    function closeEditTaskModal() {
-      document.getElementById('editTaskModal').style.display = 'none';
-      editingTaskId = null;
-    }
-
-    function saveEditTask() {
-      const task = tasks.find(t => t.id === editingTaskId);
-      if (task) {
-        const oldAssignedTo = task.assignedTo;
-        const newAssignedTo = document.getElementById('editAssignedToInput').value.trim();
-        const historyNote = document.getElementById('editHistory').value.trim();
-        const newReceiveTime = document.getElementById('editReceiveTime').value;
-
-        // Cập nhật các trường
-        task.text = document.getElementById('editTaskInput').value.trim();
-        task.receiveTime = newReceiveTime;
-        task.endTime = document.getElementById('editEndTime').value;
-        task.priority = document.getElementById('editPrioritySelect').value;
-        task.tags = document.getElementById('editTaskTags').value.trim().split(',').map(t => t.trim()).filter(t => t);
-        task.assignedTo = newAssignedTo; 
-
-        // Xử lý lịch sử: Thêm ghi chú mới (nếu có) VÀ thay đổi người giao việc
-        const newHistory = [];
-        if (historyNote) {
-            // Parse lịch sử cũ
-            const lines = historyNote.split('\n').filter(line => line.trim() !== '');
-            for (const line of lines) {
-                const parts = line.split(':');
-                if (parts.length >= 2) {
-                    newHistory.push({
-                        time: parts[0].trim(),
-                        note: parts.slice(1).join(':').trim()
-                    });
-                }
-            }
-        }
-
-        // Tự động thêm lịch sử khi người giao việc thay đổi
-        if (oldAssignedTo !== newAssignedTo) {
-            const timeStr = new Date().toLocaleTimeString('vi-VN') + ' ' + new Date().toLocaleDateString('vi-VN');
-            const note = `Chuyển giao từ **${oldAssignedTo || 'N/A'}** sang **${newAssignedTo || 'N/A'}**`;
-            // Thêm vào đầu để hiển thị lịch sử gần nhất trước
-            newHistory.unshift({ time: timeStr, note: note }); 
-        }
-
-        task.editHistory = newHistory; 
-        
-        saveData();
-        renderTasks();
-        updateTaskStats();
-        showToast('Đã cập nhật công việc!');
-        closeEditTaskModal();
-      }
-    }
-
-    // === Khởi tạo & Sự kiện ===
-    window.onload = function() {
-      loadData();
-      renderTasks();
-      updateTaskStats();
-      
-      // Khôi phục Dark Mode
-      if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-      }
-
-      // Khôi phục filter (lúc khởi tạo chỉ cần set active cho nút "Tất cả")
-      document.querySelector(`#tasksTab .filter-buttons button[onclick="setTaskFilter('all')"]`).classList.add('active');
-    };
-    
-    // Đóng Modal khi click ra ngoài
-    window.onclick = function(event) {
-      if (event.target == document.getElementById('editTaskModal')) {
-        closeEditTaskModal();
-      }
-    }
-
-    // ========== JS Quản lý Tệp tin (Giữ lại logic cũ) ==========
-    let dataFileHandle = null;
-    let savingQueued = false;
-    
-    // Giả lập hàm idbGet và idbSet cho đơn giản
-    async function idbGet(key) {
-        // Trong môi trường thực tế, đây sẽ là logic IndexedDB
-        const stored = localStorage.getItem('idb:' + key);
-        return stored ? JSON.parse(stored) : null;
-    }
-    async function idbSet(key, value) {
-        // Trong môi trường thực tế, đây sẽ là logic IndexedDB
-        localStorage.setItem('idb:' + key, JSON.stringify(value));
-    }
-    
-    function showFileLabel(name) {
-      document.getElementById('dataFileLabel').textContent = `Tệp hiện tại: ${name}`;
-    }
-
-    async function resolveHandleName(handle) {
-      try {
-        return handle.name;
-      } catch {
-        return 'Tệp không xác định';
-      }
-    }
-
-    async function requestWritePermission(handle) {
-      const opts = { mode: 'readwrite' };
-      try {
-        const st = await handle.queryPermission(opts);
-        if (st === 'granted') return true;
-        const st2 = await handle.requestPermission(opts);
-        return st2 === 'granted';
-      } catch {
-        return false;
-      }
-    }
-
-    async function saveAllToFile() {
-      if (!dataFileHandle) return;
-      if (!(await requestWritePermission(dataFileHandle))) {
-        showToast('Không có quyền ghi vào tệp!', 'error');
-        return;
-      }
-      try {
-        const writable = await dataFileHandle.createWritable();
-        const data = { 
-            tasks: window.tasks, 
-            lastSaved: new Date().toISOString() 
-        };
-        await writable.write(JSON.stringify(data, null, 2));
-        await writable.close();
-        showToast('Đã lưu vào tệp!');
-      } catch (e) {
-        console.error('Lỗi khi ghi tệp:', e);
-        showToast('Lỗi lưu tệp: ' + e.message, 'error');
-      }
-    }
-
-    async function loadFromCurrentFile() {
-      if (!dataFileHandle) return;
-      try {
-        const file = await dataFileHandle.getFile();
-        const text = await file.text();
-        importDataText(text, 'overwrite');
-        showToast('Đã tải lại dữ liệu từ tệp.');
-      } catch (e) {
-        console.error('Lỗi khi đọc tệp:', e);
-        showToast('Lỗi đọc tệp: ' + e.message, 'error');
-      }
-    }
-
-    async function manualSave() {
-        await saveAllToFile();
-    }
-    
-    async function reloadFromFile() {
-        await loadFromCurrentFile();
-    }
-
-    function exportData() {
-      try {
-        const stored = localStorage.getItem('todoAppData');
-        const obj = stored ? JSON.parse(stored) : { tasks: window.tasks, lastSaved: new Date().toISOString() };
-        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const now = new Date();
-        const ts = now.toISOString().replace(/[:.]/g, '-');
-        a.href = url;
-        a.download = `congviec-backup-${ts}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast('Đã xuất dữ liệu ra file JSON!');
-      } catch (e) {
-        console.error(e);
-        showToast('Xuất dữ liệu thất bại!', 'error');
-      }
-    }
-
-    function handleImportFile(input, mode) {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const text = evt.target.result;
-          importDataText(text, mode);
-        } catch (e) {
-          console.error(e);
-          showToast('Không thể đọc file!', 'error');
-        } finally {
-          input.value = ''; // Reset input
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function importDataText(text, mode) {
-      try {
-        const incomingData = JSON.parse(text);
-        const incomingTasks = incomingData.tasks || [];
-
-        if (mode === 'overwrite') {
-            tasks = incomingTasks;
-        } else if (mode === 'merge') {
-            const taskMap = new Map(tasks.map(t => [t.id, t]));
-            for (const t of incomingTasks) {
-                // Merge logic: ưu tiên bản ghi có createdAt mới hơn
-                const existingTask = taskMap.get(t.id);
-                if (existingTask) {
-                    const curDate = new Date(existingTask.createdAt || 0);
-                    const incDate = new Date(t.createdAt || 0);
-                    if (incDate > curDate) taskMap.set(t.id, t);
-                } else {
-                    taskMap.set(t.id, t);
-                }
-            }
-            tasks = Array.from(taskMap.values());
-        }
-
-        // Sắp xếp lại
-        tasks.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-        
-        saveData();
-        renderTasks();
-        updateTaskStats();
-        showToast('Đã nhập dữ liệu thành công!');
-
-      } catch (e) {
-        console.error('Invalid JSON in file', e);
-        showToast('Nội dung tệp không đúng định dạng.', 'error');
-      }
-    }
-
-    // Hàm kết nối tệp tin (sử dụng File System Access API) - Có thể không hoạt động trên mọi trình duyệt
-    async function connectDataFile() {
-      try {
-        const handle = await window.showSaveFilePicker({ 
-          suggestedName: 'congviec.json', 
-          types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] 
-        });
-        if (!(await requestWritePermission(handle))) {
-          showToast('Chưa có quyền ghi vào tệp đã chọn.', 'error'); 
-          return;
-        }
-        dataFileHandle = handle;
-        await idbSet('dataFileHandle', handle);
-        await saveAllToFile();
-        showFileLabel(await resolveHandleName(handle));
-        showToast('Đã kết nối & lưu dữ liệu vào tệp.');
-      } catch (e) { console.error(e); }
-    } 
-
-    async function changeDataFile() {
-      try {
-        const [handle] = await window.showOpenFilePicker({ 
-          multiple: false, 
-          types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] 
-        });
-        if (!(await requestWritePermission(handle))) {
-          showToast('Chưa có quyền ghi vào tệp đã chọn.', 'error');
-          return;
-        }
-        dataFileHandle = handle;
-        await idbSet('dataFileHandle', handle);
-        showFileLabel(await resolveHandleName(handle));
-        await loadFromCurrentFile(); // Tải dữ liệu từ tệp mới
-      } catch (e) { console.error(e); }
-    }
-
-    // Auto-save logic (giữ lại)
-    (function interceptLocalStorage() {
-      const orig = Storage.prototype.setItem;
-      Storage.prototype.setItem = function(key, value) {
-        const result = orig.apply(this, arguments);
-        if (key === 'todoAppData') {
-          if (!savingQueued) {
-            savingQueued = true;
-            setTimeout(async () => {
-              try { await saveAllToFile(); } finally { savingQueued = false; }
-            }, 700);
-          }
-        }
-        return result;
-      };
-    })();
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const handle = await idbGet('dataFileHandle');
-        if (handle) {
-          dataFileHandle = handle;
-          showFileLabel(await resolveHandleName(handle));
-          await requestWritePermission(handle);
-          await loadFromCurrentFile();
-        } else {
-          showFileLabel('Chưa kết nối tệp.');
-        }
-      } catch (e) {
-        console.error('Error loading file handle', e);
-        showFileLabel('Lỗi tải tệp tin.');
-      }
+    window.addEventListener('DOMContentLoaded', async ()=>{
+      // Restore data & dark mode
+      loadData(); renderTasks(); updateTaskStats(); attachRipple();
+      if (localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
+      // Filter default active style
+      const firstFilterBtn = document.querySelector('.filter-buttons .btn[data-filter="all"]'); if (firstFilterBtn) firstFilterBtn.classList.add('btn-primary');
+      // Dark toggle
+      document.getElementById('darkToggle').addEventListener('click', toggleDarkMode);
+      // Load file handle
+      try{ const handle = await idbGet('dataFileHandle'); if (handle){ dataFileHandle = handle; showFileLabel(await resolveHandleName(handle)); await requestWritePermission(handle); await loadFromCurrentFile(); } else { showFileLabel('Chưa kết nối tệp.'); } }catch(e){ console.error('Error loading file handle', e); showFileLabel('Lỗi tải tệp tin.'); }
     });
+
+    // Close modal when click outside
+    window.addEventListener('click', (e)=>{ const m = document.getElementById('editTaskModal'); if (e.target===m) closeEditTaskModal(); });
   </script>
 </body>
 </html>
