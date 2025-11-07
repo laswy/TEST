@@ -1,7 +1,7 @@
 {
-  "name": "CÔNG VIỆC VÀ GHI CHÚ",
-  "short_name": "Công Việc & Ghi Chú",
-  "description": "Ứng dụng quản lý công việc và ghi chú tiến bộ.",
+  "name": "CÔNG VIỆC",
+  "short_name": "Công Việc",
+  "description": "Ứng dụng quản lý công việc ",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -19,3 +19,4 @@
     }
   ]
 }
+
